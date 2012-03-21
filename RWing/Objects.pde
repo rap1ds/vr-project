@@ -116,3 +116,70 @@ public class SelectableSwitch extends SelectableObject
   // from SelectableObject
 }
 
+public class Ground extends PhysicalObject {
+
+  PImage groundTexture;
+
+  public Ground() {
+    super(1000, 2, 1000, 1, 0, ruis.getStaticFloorY(), 0, color(200), PhysicalObject.IMMATERIAL_OBJECT);
+
+    this.groundTexture = loadImage("ground.jpg");
+  }
+
+  public void renderAtOrigin() {
+
+    pushMatrix();
+    scale(super.width, super.height, super.depth);
+    beginShape(QUADS);
+
+    texture(groundTexture);
+    textureMode(NORMALIZED);
+
+    // front
+    normal(0, 0, 1);
+    vertex(-1, 1, 1, 0, 1);
+    vertex( 1, 1, 1, 1, 1);
+    vertex( 1, -1, 1, 1, 0);
+    vertex(-1, -1, 1, 0, 0);
+
+    // back
+    normal(0, 0, -1);
+    vertex( 1, 1, -1, 0, 1);
+    vertex(-1, 1, -1, 1, 1);
+    vertex(-1, -1, -1, 1, 0);
+    vertex( 1, -1, -1, 0, 0);
+
+    // right
+    normal(1, 0, 0);
+    vertex( 1, 1, 1, 0, 1);
+    vertex( 1, 1, -1, 1, 1);
+    vertex( 1, -1, -1, 1, 0);
+    vertex( 1, -1, 1, 0, 0);
+
+    // left
+    normal(-1, 0, 0);
+    vertex(-1, 1, -1, 0, 1);
+    vertex(-1, 1, 1, 1, 1);
+    vertex(-1, -1, 1, 1, 0);
+    vertex(-1, -1, -1, 0, 0);
+
+    // bottom
+    normal(0, -1, 0);
+    vertex(-1, -1, 1, 0, 1);
+    vertex( 1, -1, 1, 1, 1);
+    vertex( 1, -1, -1, 1, 0);
+    vertex(-1, -1, -1, 0, 0);
+
+    // top
+    normal(0, 1, 0);
+    vertex(-1, 1, -1, 0, 1);
+    vertex( 1, 1, -1, 1, 1);
+    vertex( 1, 1, 1, 1, 0);
+    vertex(-1, 1, 1, 0, 0);
+
+    endShape();
+
+    popMatrix();
+  }
+}
+

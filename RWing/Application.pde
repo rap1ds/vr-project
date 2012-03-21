@@ -60,6 +60,9 @@ public void mySetup()
       - 0.3f*viewManager.display[0].getDisplayHeight();
     wand3.z = viewManager.display[0].displayCenter.z;
   }
+  
+  Ground ground = new Ground();
+  ruis.addObject(ground);
 }
 
 // This method is called for each view in the draw() loop.
@@ -102,20 +105,6 @@ public void myDraw(int viewID)
   box(4);
   box(2, 10, 2);
   popMatrix();
-
-  // Draw some tiles on floor
-  for (int i=-2;i<4;++i)
-    for (int j=-2;j<4;++j)
-    {
-      float tileHeight = 5;
-      pushMatrix();
-      fill(0, 80*j, 230-70*i);
-      translate(viewManager.display[0].displayCenter.x + i*40, 
-      ruis.getStaticFloorY() + 0.5f*tileHeight, 
-      viewManager.display[0].displayCenter.z -(j+2)*40);
-      box(20, tileHeight, 20);
-      popMatrix();
-    }
 
   // You can get world coordinates from any (x,y) point on the display
   // screen using screen2WorldX/Y/Z method. This is useful when drawing

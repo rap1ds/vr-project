@@ -119,15 +119,19 @@ public class SelectableSwitch extends SelectableObject
 public class Ground extends PhysicalObject {
 
   PImage groundTexture;
-
+  
   public Ground() {
-    super(1000, 2, 1000, 1, 0, ruis.getStaticFloorY(), 0, color(200), PhysicalObject.IMMATERIAL_OBJECT);
+    this(2000);
+  }
+
+  public Ground(int groundSize) {
+    super(groundSize, 2, groundSize, 1, 0, ruis.getStaticFloorY(), 0, color(200), PhysicalObject.IMMATERIAL_OBJECT);
 
     this.groundTexture = loadImage("ground.jpg");
   }
 
   public void renderAtOrigin() {
-
+    
     pushMatrix();
     scale(super.width, super.height, super.depth);
     beginShape(QUADS);
@@ -182,4 +186,77 @@ public class Ground extends PhysicalObject {
     popMatrix();
   }
 }
+
+public class Sky extends PhysicalObject {
+
+  PImage skyTexture;
+
+  public Sky() {
+    this(2000);
+  }
+
+  public Sky(int skySize) {
+    super(skySize, skySize, skySize, 1, 0, ruis.getStaticFloorY() - skySize, 0, color(200), PhysicalObject.IMMATERIAL_OBJECT);
+    skyTexture = loadImage("skybox_texture.jpg");
+  }
+
+  public void renderAtOrigin() {
+
+    this.setLocation(playerX, playerY, playerZ);
+    
+    pushMatrix();
+    scale(super.width, super.height, super.depth);
+    beginShape(QUADS);
+
+    texture(skyTexture);
+    textureMode(NORMALIZED);
+
+    // front
+    normal(0, 0, 1);
+    vertex(-1, 1, 1, 1f/4f, 2f/3f);
+    vertex( 1, 1, 1, 2f/4f, 2f/3f);
+    vertex( 1, -1, 1, 2f/4f, 1f/3f);
+    vertex(-1, -1, 1, 1f/4f, 1f/3f);
+
+    // back
+    normal(0, 0, -1);
+    vertex( 1, 1, -1, 3f/4f, 2f/3f);
+    vertex(-1, 1, -1, 1, 2f/3f);
+    vertex(-1, -1, -1, 1, 1f/3f);
+    vertex( 1, -1, -1, 3f/4f, 1f/3f);
+
+    // right
+    normal(1, 0, 0);
+    vertex( 1, 1, 1, 2f/4f, 2f/3f);
+    vertex( 1, 1, -1, 3f/4f, 2f/3f);
+    vertex( 1, -1, -1, 3f/4f, 1f/3f);
+    vertex( 1, -1, 1, 2f/4f, 1f/3f);
+
+    // left
+    normal(-1, 0, 0);
+    vertex(-1, 1, -1, 0, 2f/3f);
+    vertex(-1, 1, 1, 1f/4f, 2f/3f);
+    vertex(-1, -1, 1, 1f/4f, 1f/3f);
+    vertex(-1, -1, -1, 0, 1f/3f);
+
+    // bottom
+    normal(0, -1, 0);
+    vertex(-1, -1, 1, 1f/4f, 1f/3f);
+    vertex( 1, -1, 1, 2f/4f, 1f/3f);
+    vertex( 1, -1, -1, 2f/4f, 0);
+    vertex(-1, -1, -1, 1f/4f, 0);
+
+    // top
+    normal(0, 1, 0);
+    vertex(-1, 1, -1, 1f/4f, 1);
+    vertex( 1, 1, -1, 2f/4f, 1);
+    vertex( 1, 1, 1, 2f/4f, 2f/3f);
+    vertex(-1, 1, 1, 1f/4f, 2f/3f);
+
+    endShape();
+
+    popMatrix();
+  }
+}
+
 

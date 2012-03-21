@@ -63,6 +63,9 @@ public void mySetup()
   
   Ground ground = new Ground();
   ruis.addObject(ground);
+  
+  Sky sky = new Sky();
+  ruis.addObject(sky);
 }
 
 // This method is called for each view in the draw() loop.

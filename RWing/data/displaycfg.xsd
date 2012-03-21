@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:sharedcfg="http://ruisystem.net/sharedcfg"
+        targetNamespace="http://ruisystem.net/displaycfg" 
+        xmlns:displaycfg="http://ruisystem.net/displaycfg" 
+        elementFormDefault="qualified"
+        attributeFormDefault="unqualified">
+  <import namespace="http://ruisystem.net/sharedcfg"
+          xsi:schemaLocation="http://ruisystem.net/sharedcfg sharedcfg.xsd"/>
+          
+  <element name="viewManager" type="displaycfg:ViewManagerType"/>
+  
+  <complexType name="ViewManagerType">
+    <sequence>
+    <!-- TODO: maximum displays allowed? -->
+      <element name="display" type="displaycfg:DisplayType" minOccurs="1" maxOccurs="8"></element>
+    </sequence>
+    <attribute name="stereoEyeDistance" type="float" default="6.0"></attribute>
+    <attribute name="defaultCameraX" type="float" default="0.0"></attribute>
+    <attribute name="defaultCameraY" type="float" default="0.0"></attribute>
+    <attribute name="defaultCameraZ" type="float" default="0.0"></attribute>
+  </complexType>
+  
+  <complexType name="DisplayType">
+    <sequence>
+      <element name="center" type="displaycfg:CartesianType"/>
+      <element name="up" type="displaycfg:CartesianType"/>
+      <element name="normal" type="displaycfg:CartesianType"/>
+    </sequence>
+    <attribute name="width" type="float"/>
+    <attribute name="height" type="float"/>
+    <attribute name="stereo" type="boolean"/>
+  </complexType>
+  
+  <complexType name="CartesianType">
+    <attributeGroup ref="displaycfg:XYZGroup"></attributeGroup>
+  </complexType>
+  
+  <attributeGroup name="XYZGroup">
+    <attribute name="x" type="float" default="0"></attribute>
+    <attribute name="y" type="float" default="0"></attribute>
+    <attribute name="z" type="float" default="0"></attribute>
+  </attributeGroup>
+  
+</schema>

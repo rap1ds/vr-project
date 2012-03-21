@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ruisystem.net/sharedcfg"
+	xmlns:sharedcfg="http://ruisystem.net/sharedcfg" elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+	<complexType name="CartesianType">
+		<attributeGroup ref="sharedcfg:XYZGroup"></attributeGroup>
+	</complexType>
+
+	<attributeGroup name="XYZGroup">
+		<attribute name="x" type="float" default="0"></attribute>
+		<attribute name="y" type="float" default="0"></attribute>
+		<attribute name="z" type="float" default="0"></attribute>
+	</attributeGroup>
+</schema>

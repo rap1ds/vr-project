@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ruisystem.net/coordcfg"
+	xmlns:tns="http://ruisystem.net/coordcfg" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<element name="coordinateCalibration" type="tns:CoordinateCalibrationType"></element>
+	
+	<complexType name="CoordinateCalibrationType">
+	 <sequence>
+	   <element name="kinectCoordinatesOrigin" type="tns:KinectCoordinatesOriginType"/>
+	   <element name="moveCoordinatesOrigin" type="tns:MoveCoordinatesOrigin"/>
+	   <element name="transformFromKinectToMove" type="tns:TransformFromKinectToMove"></element>
+	 </sequence>
+	</complexType>
+	
+	<complexType name="KinectCoordinatesOriginType">
+	 <sequence>
+	   <element name="translate" type="tns:TranslateType"/>
+	   <element name="rotate" type="tns:RotateType"></element>
+	 </sequence>
+	</complexType>
+	
+	 <complexType name="MoveCoordinatesOrigin">
+   <sequence>
+     <element name="translate" type="tns:TranslateType"/>
+     <element name="rotate" type="tns:RotateType"></element>
+   </sequence>
+  </complexType>
+  
+    <complexType name="TransformFromKinectToMove">
+   <sequence>
+     <element name="translate" type="tns:TranslateType"/>
+     <element name="rotate" type="tns:RotateType"></element>
+   </sequence>
+  </complexType>
+
+	<complexType name="TranslateType">
+		<attribute name="x"  />
+		<attribute name="y" />
+		<attribute name="z" />
+	</complexType>
+	
+	 <complexType name="RotateType">
+    <attribute name="r00" type="float" use="required"/>
+    <attribute name="r01" type="float" use="required"/>
+    <attribute name="r02" type="float" use="required"/>
+    <attribute name="r10" type="float" use="required"/>
+    <attribute name="r11" type="float" use="required"/>
+    <attribute name="r12" type="float" use="required"/>
+    <attribute name="r20" type="float" use="required"/>
+    <attribute name="r21" type="float" use="required"/>
+    <attribute name="r22" type="float" use="required"/>
+  </complexType>
+  
+</schema>

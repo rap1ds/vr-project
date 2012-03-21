@@ -1,0 +1,48 @@
+<ruis xmlns="http://ruisystem.net/ruiscfg"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://ruisystem.net/ruiscfg ruiscfg.xsd">
+    <physics>
+        <gravity x="0.0" y="9.8" z="0.0" />
+        <staticWalls floorY="150" roofY="-300" frontWallZ="1000"
+                     backWallZ="-1300" leftWallX="-1000" rightWallX="1300" />
+        <dynamicWorld boundingBoxMinX="-100000" boundingBoxMinY="-100000" 
+                      boundingBoxMinZ="-100000" boundingBoxMaxX="100000"
+                      boundingBoxMaxY="100000"  boundingBoxMaxZ="100000"  />
+    </physics>
+    <!-- Below parameters don't do anything yet -->
+
+	<interactiveObjects>
+		<selectableObject className="SelectablePhysicsCube">
+			<translate initialValue="controllerPosition" inputSource="controllerPosition"
+				secondController="" manipulateButton="buttonT" blockTranslate="false"
+				blockRotation="false" blockScale="false" />
+			<rotate initialValue="objectOrientation" inputSource="controllerOrientation"
+				secondController="" manipulateButton="buttonT" blockTranslate="false"
+				blockRotation="false" blockScale="false" />
+			<scale initialValue="objectScale" inputSource=""
+				secondController="" manipulateButton="buttonT" blockTranslate="false"
+				blockRotation="false" blockScale="false" />
+			<selectionExclude sourceType="Skeleton" />
+			<selectionExclude controllerID="2" />
+			<selectionExclude controllerID="3" />
+		</selectableObject>
+		<selectableObject className="SelectableSimpleObject">
+			<translate initialValue="objectPosition" />
+			<rotate initialValue="objectOrientation" inputSource="twoControllersSpanVector"
+				secondController="closestSameType" manipulateButton="buttonC"
+				blockScale="true" />
+			<scale initialValue="objectScale" inputSource="twoControllersSpanVector"
+				secondController="closestSameType" />
+		</selectableObject>
+		<selectableObject className="AnotherCube">
+			<translate initialValue="objectPosition" inputSource="directionProjection" />
+			<rotate initialValue="spanVector" inputSource="twoControllersSpanVector"
+				secondController="closest" />
+			<scale initialValue="objectScale" inputSource="directionProjection"
+				manipulateButton="buttonC" blockRotation="true" blockTranslate="true" />
+		</selectableObject>
+	</interactiveObjects>
+    <!-- Above parameters into RUIS.java -->
+    <!-- new class SelectableInteraction required -->
+
+</ruis>

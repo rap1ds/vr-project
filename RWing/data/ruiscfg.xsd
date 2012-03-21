@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+	      targetNamespace="http://ruisystem.net/ruiscfg" 
+	      xmlns:ruiscfg="http://ruisystem.net/ruiscfg"
+	      elementFormDefault="qualified" 
+	      attributeFormDefault="unqualified">
+
+	<annotation>
+		<documentation xml:lang="en">
+			Schema for RUIS configuration file.
+			Copyrights blahblahblah
+		</documentation>
+	</annotation>
+	<!-- Although everything is optional, the "ruis" global element is required. -->
+	<element name="ruis" type="ruiscfg:RUISType" />
+
+	<complexType name="RUISType">
+		<sequence>
+			<element name="physics" type="ruiscfg:PhysicsType" minOccurs="0"
+				maxOccurs="1" />
+			<element name="interactiveObjects" type="ruiscfg:InteractiveObjectsType"
+				minOccurs="0" maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="PhysicsType">
+		<sequence>
+			<element name="gravity" type="ruiscfg:GravityType" minOccurs="0"
+				maxOccurs="1" />
+			<element name="staticWalls" type="ruiscfg:StaticWallsType"
+				minOccurs="0" maxOccurs="1" />
+			<element name="dynamicWorld" type="ruiscfg:DynamicWorldType"
+				minOccurs="0" maxOccurs="1" />
+		</sequence>
+	</complexType>
+
+	<complexType name="InteractiveObjectsType">
+		<sequence>
+			<element name="selectableObject" type="ruiscfg:SelectableObjectType" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="GravityType">
+		<attribute name="x" type="float" default="0.0" />
+		<attribute name="y" type="float" default="0.0" />
+		<attribute name="z" type="float" default="0.0" />
+	</complexType>
+
+	<complexType name="StaticWallsType">
+		<attribute name="floorY" type="float" use="optional" />
+		<attribute name="roofY" type="float" use="optional" />
+		<attribute name="frontWallZ" type="float" use="optional" />
+		<attribute name="backWallZ" type="float" use="optional" />
+		<attribute name="leftWallX" type="float" use="optional" />
+		<attribute name="rightWallX" type="float" use="optional" />
+	</complexType>
+
+	<complexType name="DynamicWorldType">
+		<attribute name="boundingBoxMinX" type="float" default="-100000" />
+		<attribute name="boundingBoxMinY" type="float" default="-100000" />
+		<attribute name="boundingBoxMinZ" type="float" default="-100000" />
+		<attribute name="boundingBoxMaxX" type="float" default="100000" />
+		<attribute name="boundingBoxMaxY" type="float" default="100000" />
+		<attribute name="boundingBoxMaxZ" type="float" default="100000" />
+	</complexType>
+
+	<complexType name="TranslateType">
+			<attribute name="initialValue" type="string" default="controllerPosition"/>
+			<attribute name="inputSource" type="string" default="controllerPosition"/>
+			<!-- TODO: Invent your own "special" escape character! -->
+			<attribute name="secondController" type="string" default="#null"/>
+			<attribute name="manipulateButton" type="string" default="buttonT"/>
+			<attribute name="blockTranslate" type="string" default="false"/>
+			<attribute name="blockRotation" type="string" default="false"/>
+			<attribute name="blockScale" type="string" default="false"/>
+	</complexType>
+	
+	 <complexType name="RotateType">
+      <attribute name="initialValue" type="string" default="objectOrientation"/>
+      <attribute name="inputSource" type="string" default="controllerOrientation"/>
+      <attribute name="secondController" type="string" default="#null"/>
+      <attribute name="manipulateButton" type="string" default="buttonT"/>
+      <attribute name="blockTranslate" type="string" default="false"/>
+      <attribute name="blockRotation" type="string" default="false"/>
+      <attribute name="blockScale" type="string" default="false"/>
+  </complexType>
+
+	<complexType name="ScaleType">
+      <attribute name="initialValue" type="string" default="objectScale"/>
+      <attribute name="inputSource" type="string" default="#null"/>
+      <attribute name="secondController" type="string" default="#null"/>
+      <attribute name="manipulateButton" type="string" default="buttonT"/>
+      <attribute name="blockTranslate" type="string" default="false"/>
+      <attribute name="blockRotation" type="string" default="false"/>
+      <attribute name="blockScale" type="string" default="false"/>
+	</complexType>
+
+	<complexType name="SelectableObjectType">
+		<sequence>
+			<element name="translate" type="ruiscfg:TranslateType">
+			</element>
+			<element name="rotate" type="ruiscfg:RotateType">
+			</element>
+			<element name="scale" type="ruiscfg:ScaleType">
+			</element>
+			<element name="selectionExclude" minOccurs="0" maxOccurs="unbounded">
+				<complexType>
+					<attribute name="sourceType" use="optional" />
+					<attribute name="controllerID" use="optional" />
+				</complexType>
+			</element>
+		</sequence>
+		<!-- TODO: make className enum -->
+		<attribute name="className" use="required" />
+	</complexType>
+
+</schema>
+	

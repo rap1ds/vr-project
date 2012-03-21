@@ -1,0 +1,34 @@
+<input xmlns="http://ruisystem.net/inputcfg"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://ruisystem.net/inputcfg inputcfg.xsd">
+        <!-- It is possible to have any number of wand instances.
+             The wiimoteID, skeletonID, and PSMoveID indices start from 		 0 (zero).
+             Similarly, the wand instances will get their ID from the
+             order in which they appear on this list, starting from 0. 	  -->
+        <wands>            
+            <Mouse       	     selection="buttonLeft"        />
+            <PSMove   psmoveID="0" selection="buttonTrigger"     />
+            <PSMove   psmoveID="1" selection="buttonTrigger"     />
+            <Wiimote  wiimoteID="0"                              />           		<Wiimote  wiimoteID="1" selection="buttonB"          />
+            <!-- Uncomment one of the skeleton rows if you want to use 		Kinect. -->
+            <!--
+            <Skeleton skeletonID="0" bodyPart="rightHand" 					selection="gestureK"				     />
+            <Skeleton skeletonID="0" bodyPart="leftHand"  					selection="gestureL" release="gestureM"        />
+											-->
+        </wands>
+
+        <headTracking enabled="false">
+            <Skeleton skeletonID="0"/>
+        </headTracking>
+        <!-- Only first head tracker is taken into account in this 									    version -->
+
+        <coordinateSystem preferedTracker="Kinect"
+                          offsetX="0.0" offsetY="0.0" offsetZ="0.0"/>
+
+    <network> 
+        <MoveMe address="130.233.46.216" localPort="5566" 				remotePort="7899"/>
+        <GlovePIE  address="127.0.0.1" localPort="7400" 				remotePort="8000" />
+    </network>
+    <!-- GlovePIE is used to handle Wiimote connections. -->
+
+</input>

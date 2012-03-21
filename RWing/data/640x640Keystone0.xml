@@ -1,0 +1,11 @@
+<keystone xmlns="http://ruisystem.net/keystonecfg"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://ruisystem.net/keystonecfg keystonecfg.xsd">
+    <surface>
+        <point x="0.0" y="0.0" u="0.0" v="0.0"/>
+        <point x="640.0" y="0.0" u="640" v="0.0"/>
+        <point x="640.0" y="640.0" u="640" v="640"/>
+        <point x="0.0" y="640.0" u="0.0" v="640"/>
+    </surface>
+    <projection xScale="0.000000" yScale="0.000000" xPersp="0.000000" yPersp="0.000000" xFrustum="0.000000" yFrustum="0.000000" ySkew="0.000000"          />
+</keystone>

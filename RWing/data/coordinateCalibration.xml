@@ -1,0 +1,25 @@
+<coordinateCalibration     xmlns="http://ruisystem.net/coordcfg"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://ruisystem.net/coordcfg coordcfg.xsd">
+
+	<kinectCoordinatesOrigin>
+		<translate x="0.0" y="0.0" z="0.0" />
+		<rotate r00="1.0" r01="0.0" r02="0.0" r10="0.0" r11="1.0" r12="0.0"
+
+			r20="0.0" r21="0.0" r22="1.0" />
+
+	</kinectCoordinatesOrigin>
+
+	<moveCoordinatesOrigin>
+		<translate x="0.0" y="0.0" z="0.0" />
+		<rotate r00="1.0" r01="0.0" r02="0.0" r10="0.0" r11="1.0" r12="0.0"
+
+			r20="0.0" r21="0.0" r22="1.0" />
+
+	</moveCoordinatesOrigin>
+	<transformFromKinectToMove>
+		<translate x="0.0" y="0.0" z="0.0" />
+		<rotate r00="1.0" r01="0.0" r02="0.0" r10="0.0" r11="1.0" r12="0.0"
+			r20="0.0" r21="0.0" r22="1.0" />
+	</transformFromKinectToMove>
+</coordinateCalibration>

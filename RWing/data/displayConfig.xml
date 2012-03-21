@@ -1,0 +1,24 @@
+<viewManager 
+    xmlns="http://ruisystem.net/displaycfg"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://ruisystem.net/displaycfg displaycfg.xsd"
+    defaultCameraX="0.0" defaultCameraY="0.0" defaultCameraZ="300.0"
+    stereoEyeDistance="6.0">
+    <display width="300.0" height="300.0" stereo="false"> 
+        <center x="0.0" y="0.0" z="0.0" />
+        <up     x="0.0"  y="-1.0"  z="0.0" />
+        <normal x="0.0"   y="0.0"   z="1.0" />
+    </display>
+    <display width="300.0" height="300.0" stereo="false"> 
+        <center x="150.0" y="0.0" z="150.0" />
+        <up     x="0.0"   y="-1.0"  z="0.0" />
+        <normal x="-1.0"  y="0.0"   z="0.0" />
+    </display>
+	<!-- It is possible to have any number of displays.  
+		 If stereo="false", Xth display's parameters are mapped to 
+		 viewManager.keystonedScreen[X-1]. If stereo="true", Xth display's
+		 parameters are mapped to viewManager.keystonedScreen[Y-1] and
+		 mapped to viewManager.keystonedScreen[Y], where Y is the total 
+		 number of keystonedWall instances that were created by other
+		 display elements of this file before the Xth display element.     -->
+</viewManager>

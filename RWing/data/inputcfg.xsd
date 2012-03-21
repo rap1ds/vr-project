@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ruisystem.net/inputcfg"
+	xmlns:inputcfg="http://ruisystem.net/inputcfg" elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+	
+	<element name="input" type="inputcfg:InputType" />
+	<complexType name="InputType">
+		<sequence>
+			<element name="wands" type="inputcfg:WandType"/>
+			<element name="headTracking" type="inputcfg:HeadTrackingType"/>
+			<element name="coordinateSystem" type="inputcfg:CoordinateSystemType"/>
+			<element name="network" type="inputcfg:NetworkType"/>
+		</sequence>
+	</complexType>
+
+
+  <complexType name="CoordinateSystemType">
+    <attribute name="preferedTracker" type="inputcfg:CoordinateSystemPreferredTrackerType"/>
+    <attribute name="offsetX" type="float" use="optional" default="0.0"/>
+    <attribute name="offsetY" type="float" use="optional" default="0.0"/>
+    <attribute name="offsetZ" type="float" use="optional" default="0.0"/>
+    <attribute name="kinectFloorDetection" type="boolean" use="optional"/>
+  </complexType>
+
+	<complexType name="NetworkType">
+		<sequence>
+			<choice minOccurs="1" maxOccurs="unbounded">
+			  <element name="MoveMe" type="inputcfg:MoveMeType" />
+				<element name="GlovePIE" type="inputcfg:GlovePIEType" />
+				<element name="OSCserver" type="inputcfg:OSCServerType" />
+			</choice>
+		</sequence>
+	</complexType>
+
+
+  <complexType name="MoveMeType">
+    <attribute name="address" type="inputcfg:IPv4Address" />
+    <attribute name="remotePort" type="inputcfg:PortNumber" />
+    <attribute name="localPort" type="inputcfg:PortNumber" />
+  </complexType>
+
+	<complexType name="GlovePIEType">
+		<attribute name="address" type="inputcfg:IPv4Address" />
+		<attribute name="remotePort" type="inputcfg:PortNumber" />
+		<attribute name="localPort" type="inputcfg:PortNumber" />
+	</complexType>
+	
+	 <complexType name="OSCServerType">
+    <attribute name="address" type="inputcfg:IPv4Address" />
+    <attribute name="remotePort" type="inputcfg:PortNumber" />
+    <attribute name="localPort" type="inputcfg:PortNumber" />
+  </complexType>
+
+  <simpleType name="CoordinateSystemPreferredTrackerType">
+    <restriction base="string">
+      <enumeration value="Kinect"/>
+      <enumeration value="PSMove"/>
+      <enumeration value="ColorLEDtracker"/>  
+    </restriction>
+  </simpleType>
+
+	<complexType name="HeadTrackingType">
+
+		<choice minOccurs="0"
+        maxOccurs="unbounded" >
+			<element name="ColorLED" type="inputcfg:ColorLEDTrackerType"/>
+			<element name="PSMove" type="inputcfg:PSMoveTrackerType"/>
+			<element name="Skeleton" type="inputcfg:SkeletonTrackerType"/>
+		</choice>
+		<attribute name="enabled" type="boolean" />
+	</complexType>
+
+	<complexType name="TrackerType">
+		<attribute name="headOffsetX" type="float" use="optional" default="0.0"/>
+		<attribute name="headOffsetY" type="float" use="optional" default="0.0"/>
+		<attribute name="headOffsetZ" type="float" use="optional" default="0.0"/>
+	</complexType>
+
+	<complexType name="SkeletonTrackerType">
+		<complexContent>
+			<extension base="inputcfg:TrackerType">
+				<attribute name="skeletonID" type="integer"/>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="PSMoveTrackerType">
+		<complexContent>
+			<extension base="inputcfg:TrackerType">
+				<attribute name="psmoveID" type="integer"/>
+			</extension>
+		</complexContent>
+	</complexType>
+
+  <complexType name="ColorLEDTrackerType">
+    <complexContent>
+      <extension base="inputcfg:TrackerType">
+        <attribute name="color" type="string"/>
+      </extension>
+    </complexContent>
+  </complexType>
+  
+
+
+
+  <complexType name="WandType">
+    <sequence>
+      <choice minOccurs="0" maxOccurs="unbounded">
+        <element name="Wiimote" type="inputcfg:WiimoteType"/>
+        <element name="Mouse" type="inputcfg:MouseType"/>
+        <element name="PSMove" type="inputcfg:PSMoveType"/>
+        <element name="Skeleton" type="inputcfg:SkeletonType"/>
+      </choice>
+    </sequence>
+  </complexType>
+
+  
+	<!-- TODO: Complete these enumeration types! -->
+
+
+	<simpleType name="PSMoveSignalType">
+		<restriction base="string">
+<!--
+      <enumeration value="dPadUp" />
+      <enumeration value="dPadDown" />
+      <enumeration value="dPadLeft" />
+      <enumeration value="dPadRight" />
+-->
+			<enumeration value="buttonStart" />
+			<enumeration value="buttonSelect" />
+			<enumeration value="buttonHome" />
+			<enumeration value="buttonMove" />
+			<enumeration value="buttonT" />
+			<enumeration value="buttonS" />
+			<enumeration value="buttonO" />
+			<enumeration value="buttonX" />
+			<enumeration value="buttonTrigger" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="WiimoteSignalType">
+		<restriction base="string">
+			<enumeration value="buttonA" />
+			<enumeration value="buttonB" />
+			<enumeration value="button1" />
+			<enumeration value="button1" />
+			<enumeration value="buttonPlus" />
+			<enumeration value="buttonMinus" />
+			<enumeration value="buttonHome" />
+			<enumeration value="buttonPower" />
+			<enumeration value="dPadUp" />
+			<enumeration value="dPadDown" />
+			<enumeration value="dPadLeft" />
+			<enumeration value="dPadRight" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="SkeletonSignalType">
+		<restriction base="string">
+<!--
+      			<enumeration value="straightenRightElbow"/>
+      			<enumeration value="straightenLeftElbow"/>
+      			<enumeration value="straightenRightElbow"/>
+-->
+		 <!-- TODO: Complete this -->
+		</restriction>
+	</simpleType>
+	
+	 <simpleType name="MouseSignalType">
+    <restriction base="string">
+      <enumeration value="buttonLeft"/>
+      <enumeration value="buttonRight"/>
+      <enumeration value="buttonCenter"/>
+      <enumeration value="button4"/>
+      <enumeration value="button5"/>
+      <enumeration value="buttonSoft"/>
+      <enumeration value="buttonSensitivityUp"/>
+      <enumeration value="buttonSensitivityDown"/>
+      <enumeration value="wheelUp"/>
+      <enumeration value="wheelDown"/>
+      <enumeration value="wheelLeft"/>
+      <enumeration value="wheelRight"/>
+    </restriction>
+  </simpleType>
+	
+	
+	<complexType id="WandElementType" name="WandElementType">
+	 <!-- Proposal: use only "ID" attribute -->
+	 <attribute name="sourceType" type="inputcfg:WandElementNameType"/>
+	 <attribute name="canSelectMultiple" type="boolean" use="optional"/>
+   <attribute name="selectionRay" type="inputcfg:SelectionRayType" use="optional"/>
+	</complexType>
+
+  <simpleType name="WandElementNameType">
+    <restriction base="string">
+      <enumeration value="Mouse"/>
+      <enumeration value="Wiimote"/>
+      <enumeration value="Skeleton"/>
+      <enumeration value="PSMove"/>
+    </restriction>
+  </simpleType>
+
+
+  <complexType name="MouseType">
+    <complexContent>
+      <extension base="inputcfg:WandElementType">
+        <attributeGroup ref="inputcfg:mouseAttributeGroup"></attributeGroup>
+      </extension>
+    </complexContent>
+  </complexType>
+
+	<complexType name="WiimoteType">
+		<complexContent>
+			<extension base="inputcfg:WandElementType">
+				<attributeGroup ref="inputcfg:wiimoteAttributeGroup"></attributeGroup>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="PSMoveType">
+		<complexContent>
+			<extension base="inputcfg:WandElementType">
+				<attributeGroup ref="inputcfg:psmoveAttributeGroup"></attributeGroup>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="SkeletonType">
+		<complexContent>
+			<extension base="inputcfg:WandElementType">
+				<attributeGroup ref="inputcfg:skeletonAttributeGroup"></attributeGroup>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<attributeGroup name="mouseAttributeGroup">
+		<attribute name="mouseID" type="integer" />
+		<attribute name="selection" type="inputcfg:MouseSignalType"
+			use="optional" default="buttonLeft"/>
+		<attribute name="release" type="inputcfg:MouseSignalType"
+			use="optional" />
+	</attributeGroup>
+  
+	<attributeGroup name="wiimoteAttributeGroup">
+   <attribute name="wiimoteID" type="integer"/>
+   <attribute name="selection" type="inputcfg:WiimoteSignalType" use="optional" default="buttonB"/>
+   <attribute name="release" type="inputcfg:WiimoteSignalType" use="optional"/>
+	</attributeGroup>
+
+  <attributeGroup name="psmoveAttributeGroup">
+   <attribute name="psmoveID" type="integer"/>
+   <attribute name="selection" type="inputcfg:PSMoveSignalType" use="optional" default="buttonTrigger"/>
+   <attribute name="release" type="inputcfg:PSMoveSignalType" use="optional"/>
+  </attributeGroup>
+	
+  <attributeGroup name="skeletonAttributeGroup">
+   <attribute name="skeletonID" type="integer"/>
+   <attribute name="bodyPart" type="inputcfg:BodyPart"/>
+   <attribute name="selection" type="inputcfg:SkeletonSignalType" use="optional" default="straightenRightElbow"/>
+   <attribute name="release" type="inputcfg:SkeletonSignalType" use="optional"/>
+  </attributeGroup>
+	
+	<simpleType name="SelectionRayType">
+	 <restriction base="string">
+	   <enumeration value="headToWand"/>
+	   <enumeration value="wandDirection"/>
+     <enumeration value="wandProximity"/>
+     <enumeration value="customVector"/>
+	 </restriction>
+	</simpleType>
+
+  <simpleType name="OSCClass">
+    <restriction base="string">
+      <enumeration value="GlovePIE"/>
+      <enumeration value="SendExample"/>
+      <enumeration value="ReceiveExample"/>
+    </restriction>
+  </simpleType>
+  
+  <simpleType name="IPv4Address">
+    <restriction base="string">
+      <pattern value="\d+\.\d+\.\d+\.\d+"/>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="PortNumber">
+    <restriction base="integer">
+      <minInclusive value="1"/>
+      <maxInclusive value="65536"/>
+    </restriction>
+  </simpleType>
+
+	<simpleType name="BodyPart">
+		<restriction base="string">
+			<enumeration value="head" />
+			<enumeration value="leftHand" />
+			<enumeration value="rightHand" />
+			<enumeration value="leftFoot" />
+			<enumeration value="rightFoot" />
+			<enumeration value="leftElbow" />
+			<enumeration value="rightElbow" />
+			<enumeration value="leftKnee" />
+			<enumeration value="rightKnee" />
+			<enumeration value="leftShoulder" />
+			<enumeration value="rightShoulder" />
+			<enumeration value="leftHip" />
+			<enumeration value="rightHip" />
+		</restriction>
+  </simpleType>
+
+</schema>

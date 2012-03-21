@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ruisystem.net/keystonecfg"
+	xmlns:tns="http://ruisystem.net/keystonecfg" elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+	<element name="keystone" type="tns:KeystoneType"/>
+	
+	<complexType name="KeystoneType">
+	 <sequence>
+	   <element name="surface" type="tns:SurfaceType"/>
+	   <element name="projection" type="tns:ProjectionType"/>
+	 </sequence>
+	</complexType>
+	
+	<complexType name="SurfaceType">
+	 <sequence>
+	   <element name="point" type="tns:PointType" minOccurs="4" maxOccurs="4"></element>
+	 </sequence>
+	</complexType>
+	
+	<complexType name="ProjectionType">
+	 <attribute name="xScale" type="float"/>
+   <attribute name="yScale" type="float"/>
+   <attribute name="xPersp" type="float"/>
+   <attribute name="yPersp" type="float"/>
+   <attribute name="xFrustum" type="float"/>
+   <attribute name="yFrustum" type="float"/>
+   <attribute name="ySkew" type="float"/>
+	</complexType>
+	
+	<complexType name="PointType">
+	 <attribute name="x" type="float"/>
+   <attribute name="y" type="float"/>
+   <attribute name="u" type="float"/>
+   <attribute name="v" type="float"/>
+	</complexType>
+</schema>

@@ -32,8 +32,6 @@ String ruisConfigFileName = "ruisConfig.xml";
 boolean wandInfoPrinted = false;
 PImage imageOverlay = null;
 
-OBJModel plane;
-
 public void setup()
 { 
   int viewCount = ViewManager.readViewCount(this, displayConfigFileName);
@@ -45,9 +43,6 @@ public void setup()
   viewManager = new ViewManager(this, VIEW_WIDTH, VIEW_HEIGHT, displayConfigFileName);
   
   ruis = new RUIS(this, viewManager, inputManager, ruisConfigFileName);
-  
-  plane = new OBJModel(this, "plane.obj", "relative", TRIANGLE_FAN);
-  plane.translateToCenter();
   
   createShortcuts();
 

@@ -166,12 +166,6 @@ public void myDraw(int viewID)
 
   popMatrix();
 
-  if (imageOverlay != null) {
-    hint(DISABLE_DEPTH_TEST);
-    imageMode(CENTER);
-    image(imageOverlay, 0, 0);
-  }
-
   relativeScreenX = 0.8f;
   relativeScreenY = 0.95f;
 
@@ -311,10 +305,6 @@ public void mouseReleased()
   viewManager.setKeystoneSelected(false);
 }
 
-public void mousePressed() {
-  if (imageOverlay != null) imageOverlay = null;
-}
-
 public void lightSetup()
 {
   noLights();
@@ -382,15 +372,4 @@ public void onStartPose(String pose, int userId)
 
   inputManager.ni.stopPoseDetection(userId); 
   inputManager.ni.requestCalibrationSkeleton(userId, true);
-}
-
-public void scaleImageOverlay() {
-  double screenAspectRatio = viewManager.display[0].getDisplayWidth() /
-          viewManager.display[0].getDisplayHeight();
-  double imageAspectRatio = imageOverlay.width / imageOverlay.height;
-  if (screenAspectRatio > imageAspectRatio) {
-    imageOverlay.resize(0, (int)viewManager.display[0].getDisplayHeight());
-  } else {
-    imageOverlay.resize((int)viewManager.display[0].getDisplayWidth(), 0);
-  }
 }

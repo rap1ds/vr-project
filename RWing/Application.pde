@@ -108,6 +108,8 @@ public void myDraw(int viewID)
   box(4);
   box(2, 10, 2);
   popMatrix();
+  
+  plane.draw();
 
   // You can get world coordinates from any (x,y) point on the display
   // screen using screen2WorldX/Y/Z method. This is useful when drawing

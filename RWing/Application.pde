@@ -13,7 +13,7 @@ float playerRoll  = 0;
 
 PVector incrementalMove = new PVector(0, 0, 0);
 
-OBJModel plane;
+Plane plane;
 
 // This function is called only once in the setup() function
 public void mySetup()
@@ -69,8 +69,7 @@ public void mySetup()
   Sky sky = new Sky();
   ruis.addObject(sky);
   
-  plane = new OBJModel(this, "plane.obj", "relative", TRIANGLE_FAN);
-  plane.translateToCenter();
+  plane = new Plane(this, "plane.obj", "relative", TRIANGLE_FAN);
 }
 
 // This method is called for each view in the draw() loop.

@@ -259,4 +259,16 @@ public class Sky extends PhysicalObject {
   }
 }
 
-
+public class Plane {
+  
+  public OBJModel model;
+  
+  public Plane(PApplet parent, String filename, String pathType, int drawMode) {
+    this.model = new OBJModel(parent, filename, pathType, drawMode);
+    this.model.translateToCenter();
+  }
+  
+  public void draw() {
+    this.model.draw();
+  }
+}

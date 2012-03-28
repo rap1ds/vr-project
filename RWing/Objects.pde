@@ -119,7 +119,7 @@ public class SelectableSwitch extends SelectableObject
 public class Ground extends PhysicalObject {
 
   PImage groundTexture;
-  
+
   public Ground() {
     this(2000);
   }
@@ -131,7 +131,7 @@ public class Ground extends PhysicalObject {
   }
 
   public void renderAtOrigin() {
-    
+
     pushMatrix();
     scale(super.width, super.height, super.depth);
     beginShape(QUADS);
@@ -203,7 +203,7 @@ public class Sky extends PhysicalObject {
   public void renderAtOrigin() {
 
     this.setLocation(playerX, playerY, playerZ);
-    
+
     pushMatrix();
     scale(super.width, super.height, super.depth);
     beginShape(QUADS);
@@ -270,5 +270,74 @@ public class Plane {
   
   public void draw() {
     this.model.draw();
+  }
+}
+
+public class Checkpoint extends PhysicalObject {
+
+  public Checkpoint(float posX, float posY, float posZ, int size) {
+    super(size, size, size, 1, posX, posY, posZ, color(200), PhysicalObject.IMMATERIAL_OBJECT);
+  }
+
+  public void renderAtOrigin() {
+    fill(0x4400CC00);
+    
+    pushMatrix();
+    scale(super.width, super.height, super.depth);
+
+    float x, y, z, s, t, u, v;
+    float nx, ny, nz;
+    float aInner, aOuter;
+    int idx = 0;
+
+    float outerRad = 1;
+    float innerRad = 0.1;
+    int numc = 4;
+    int numt = 10;
+    int axis = 0;
+
+    beginShape(QUAD_STRIP);
+    for (int i = 0; i < numc; i++) {
+      for (int j = 0; j <= numt; j++) {
+        t = j;
+        v = t / (float)numt;
+        aOuter = v * TWO_PI;
+        float cOut = cos(aOuter);
+        float sOut = sin(aOuter);
+        for (int k = 1; k >= 0; k--) {
+          s = (i + k);
+          u = s / (float)numc;
+          aInner = u * TWO_PI;
+          float cIn = cos(aInner);
+          float sIn = sin(aInner);
+
+          if (axis == 0) {
+            x = (outerRad + innerRad * cIn) * cOut;
+            y = (outerRad + innerRad * cIn) * sOut;
+            z = innerRad * sIn;
+          } 
+          else if (axis == 1) {
+            x = innerRad * sIn;
+            y = (outerRad + innerRad * cIn) * sOut;
+            z = (outerRad + innerRad * cIn) * cOut;
+          } 
+          else {
+            x = (outerRad + innerRad * cIn) * cOut;
+            y = innerRad * sIn;
+            z = (outerRad + innerRad * cIn) * sOut;
+          }     
+
+          nx = cIn * cOut; 
+          ny = cIn * sOut;
+          nz = sIn;
+
+          normal(nx, ny, nz);
+          vertex(x, y, z);
+        }
+      }
+    }
+    endShape();
+
+    popMatrix();
   }
 }

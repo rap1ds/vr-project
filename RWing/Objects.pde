@@ -262,17 +262,26 @@ public class Sky extends PhysicalObject {
   }
 }
 
-public class Plane {
+public class Plane extends PhysicalObject {
   
-  public OBJModel model;
+  OBJModel model;
+  PVector direction, location;
+  float speed;
   
   public Plane(PApplet parent, String filename, String pathType, int drawMode) {
-    this.model = new OBJModel(parent, filename, pathType, drawMode);
-    this.model.translateToCenter();
+    super(0, 0, 0, 0, 0, 0, 0);
+    model = new OBJModel(parent, filename, pathType, drawMode);
+    direction = new PVector(0, 0, 1);
+    location = new PVector(0, 0, 0);
+    speed = 2;
   }
   
   public void draw() {
-    this.model.draw();
+    location = PVector.add(location, PVector.mult(direction, speed));
+    pushMatrix();
+    translate(location.x, location.y, location.z);
+    model.draw();
+    popMatrix();
   }
 }
 

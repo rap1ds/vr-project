@@ -69,6 +69,19 @@ public void mySetup()
   Sky sky = new Sky();
   ruis.addObject(sky);
   
+  float z = 100;
+  float x, y;
+  for(int i = 0; i < 10; i++) {
+    
+    z += 400;
+    x = random(-400, 400);
+    y = random(-400, -800); // WTF? Why negative values are above the ground and positive values are below?
+    
+    Checkpoint checkpoint = new Checkpoint(x, y, z, 100);
+    ruis.addObject(checkpoint);
+  }
+  
+  
   plane = new OBJModel(this, "plane.obj", "relative", TRIANGLE_FAN);
   plane.translateToCenter();
 }

@@ -266,22 +266,42 @@ public class Plane extends PhysicalObject {
   
   OBJModel model;
   PVector direction, location;
-  float speed;
+  float speed, roll = 0, pitch = 0, easing = 0.3;
   
   public Plane(PApplet parent, String filename, String pathType, int drawMode) {
     super(0, 0, 0, 0, 0, 0, 0);
     model = new OBJModel(parent, filename, pathType, drawMode);
     direction = new PVector(0, 0, 1);
     location = new PVector(0, 0, 0);
-    speed = 2;
+    speed = 0.5;
   }
   
   public void draw() {
     location = PVector.add(location, PVector.mult(direction, speed));
     pushMatrix();
     translate(location.x, location.y, location.z);
+    translate(0, -8, 0);
+    rotateX(roll);
+    rotateZ(pitch);
+    translate(0, 8, 0);
     model.draw();
     popMatrix();
+  }
+  
+  public void roll(float angle) {
+    roll += easing * (angle - roll);
+  }
+  
+  public void pitch(float angle) {
+    pitch += easing * (angle - pitch);
+  }
+  
+  public void addRoll(float increment) {
+    roll += increment;
+  }
+  
+  public void addPitch(float increment) {
+    pitch += increment;
   }
 }
 

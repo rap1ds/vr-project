@@ -263,15 +263,19 @@ public void myInteraction()
 
 // Keyboard user interface
 public void keyPressed()
-{
-  // Location control for wand2 which is simulated with keyboard
-  if (key == CODED && wand2 != null)
+{ 
+  // Location control for wand3 which is simulated with keyboard
+  /*if (key == CODED && wand3 != null)
   {
-    if (keyCode == LEFT ) wand2.x -= 1.5; 
-    if (keyCode == RIGHT) wand2.x += 1.5;     
-    if (keyCode == UP   ) wand2.y -= 1.5; 
-    if (keyCode == DOWN ) wand2.y += 1.5; 
-  }
+    if (keyCode == LEFT ) wand3.x -= 0.6; 
+    if (keyCode == RIGHT) wand3.x += 0.6;     
+    if (keyCode == UP   ) wand3.y -= 0.6; 
+    if (keyCode == DOWN ) wand3.y += 0.6;
+  }*/
+  if (keyCode == LEFT ) plane.addPitch(0.01); 
+  if (keyCode == RIGHT) plane.addPitch(-0.01);     
+  if (keyCode == UP   ) plane.addRoll(-0.01); 
+  if (keyCode == DOWN ) plane.addRoll(0.01);
 
   // Rotational control for camera
   if (key=='z') playerYaw   -= 0.02;

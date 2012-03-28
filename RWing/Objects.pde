@@ -1,6 +1,22 @@
 /* Interactive objects.
  Write your dynamic and interactive element classes here */
 
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
+
+import processing.core.PApplet;
+import processing.core.PVector;
+
+import com.bulletphysics.collision.dispatch.CollisionFlags;
+import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.collision.shapes.BoxShape;
+import com.bulletphysics.collision.shapes.CollisionShape;
+import com.bulletphysics.collision.shapes.SphereShape;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
+import com.bulletphysics.linearmath.DefaultMotionState;
+import com.bulletphysics.linearmath.Transform;
+
 /**
  * This is how you define a new kind of Physical object with its own physical
  * behavior and own graphics rendering method.
@@ -307,13 +323,27 @@ public class Plane extends PhysicalObject {
 
 public class Checkpoint extends PhysicalObject {
 
+  float posX;
+  float posY;
+  float posZ;
+  int size;
+  
+  PVector[] testVectors; 
+
   public Checkpoint(float posX, float posY, float posZ, int size) {
     super(size, size, size, 1, posX, posY, posZ, color(200), PhysicalObject.IMMATERIAL_OBJECT);
+
+    this.size = size;
+    this.posX = posX;
+    this.posY = posY;
+    this.posZ = posZ;
+    
+    this.test();
   }
 
   public void renderAtOrigin() {
     fill(0x4400CC00);
-    
+
     pushMatrix();
     scale(super.width, super.height, super.depth);
 
@@ -326,7 +356,6 @@ public class Checkpoint extends PhysicalObject {
     float innerRad = 0.1;
     int numc = 4;
     int numt = 10;
-    int axis = 0;
 
     beginShape(QUAD_STRIP);
     for (int i = 0; i < numc; i++) {
@@ -343,21 +372,9 @@ public class Checkpoint extends PhysicalObject {
           float cIn = cos(aInner);
           float sIn = sin(aInner);
 
-          if (axis == 0) {
-            x = (outerRad + innerRad * cIn) * cOut;
-            y = (outerRad + innerRad * cIn) * sOut;
-            z = innerRad * sIn;
-          } 
-          else if (axis == 1) {
-            x = innerRad * sIn;
-            y = (outerRad + innerRad * cIn) * sOut;
-            z = (outerRad + innerRad * cIn) * cOut;
-          } 
-          else {
-            x = (outerRad + innerRad * cIn) * cOut;
-            y = innerRad * sIn;
-            z = (outerRad + innerRad * cIn) * sOut;
-          }     
+          x = (outerRad + innerRad * cIn) * cOut;
+          y = (outerRad + innerRad * cIn) * sOut;
+          z = innerRad * sIn;
 
           nx = cIn * cOut; 
           ny = cIn * sOut;
@@ -371,5 +388,89 @@ public class Checkpoint extends PhysicalObject {
     endShape();
 
     popMatrix();
+  }
+
+  /**
+   * This is naive because it doesn't take into account the rotation of the object.
+   * Assumes the rotation is not changed from the default
+   */
+  public PVector getNaiveNormal() {
+    PVector norm = new PVector(0, 0, this.size);
+    norm.add(this.getLocation());
+    return norm;
+  }
+
+  public PVector getCenter() {
+    return this.getLocation();
+  }
+  
+  /**
+   * @param l0 Position at the time 0
+   * @param l1 Position at the time 1
+   */
+  public boolean intersects(PVector l0, PVector l1) {
+    PVector p0 = this.getCenter();
+    PVector n = getNaiveNormal();
+    PVector l = new PVector();
+    PVector.sub(l1, l0, l);
+    
+    PVector p0subl0 = new PVector();
+    PVector.sub(p0, l0, p0subl0);
+    
+    float d = p0subl0.dot(n) / l.dot(n);
+    
+    PVector intersectionPoint = new PVector();
+    PVector.mult(l, d, intersectionPoint);
+    intersectionPoint.add(l0);
+    
+    float dist = intersectionPoint.dist(this.getCenter());
+    
+    if(dist < this.size) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
+  /**
+   * Tests intersects method.
+   *
+   * Should be removed when verifyid that the intersects method works as expected
+   */
+  public void test() {
+    PVector center = this.getLocation();
+    
+    PVector true1 = new PVector(center.x - 50, center.y - 20, center.z);
+    PVector false1 = new PVector(center.x + 150, center.y, center.z);
+    PVector false2 = new PVector(center.x - 150, center.y - 20, center.z);
+    
+    true1.mult(2);
+    false1.mult(2);
+    false2.mult(2);
+    
+    PVector origin = new PVector(0, 0, 0);
+    
+    println("True1, intersects (should be true): " + this.intersects(origin, true1));
+    println("False1, intersects (should be false): " + this.intersects(origin, false1));
+    println("False2, intersects (should be false): " + this.intersects(origin, false2));
+    
+    this.testVectors = new PVector[3];
+    this.testVectors[0] = true1;
+    this.testVectors[1] = false1;
+    this.testVectors[2] = false2;
+  }
+
+  /**
+   * Get the location of PhysicalObject
+   */
+  public PVector getLocation()
+  {
+    // This should be removed
+    Transform myTransform = new Transform();
+    rigidBody.getMotionState().getWorldTransform(myTransform);
+
+    // Set object location
+    return new PVector(myTransform.origin.x, myTransform.origin.y, 
+    myTransform.origin.z);
   }
 }

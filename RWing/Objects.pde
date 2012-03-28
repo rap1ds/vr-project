@@ -14,8 +14,8 @@ public class ImmaterialSphere extends PhysicalObject
     // of the PhysicalObject.IMMATERIAL flag. The PhysicalObject constructor
     // with 7 arguments creates a sphere shape, whereas the constructor with 
     // 9 arguments creates a box shape
-    super(radius, 1 /* mass */, startX, startY, startZ, 
-    sphereColor, PhysicalObject.IMMATERIAL_OBJECT         );
+    super(radius, 1 /* mass */, startX, startY, startZ,
+        sphereColor, PhysicalObject.IMMATERIAL_OBJECT         );
   }
 
   // Redefine PhysicalObject's renderAtOrigin() method, which draws graphics
@@ -28,14 +28,14 @@ public class ImmaterialSphere extends PhysicalObject
     // Add some graphical details (2 white boxes around the sphere) 
     fill(color(255));
     noStroke();
-    rotateX(0.25f*PI);
+    rotateX(0.25*PI);
     pushMatrix();
     translate( super.radius, 0, 0);
-    box(0.2f*super.radius, 0.4f*super.radius, 0.4f*super.radius);
+    box(0.2*super.radius, 0.4*super.radius, 0.4*super.radius);
     popMatrix();
     pushMatrix();
     translate(-super.radius, 0, 0);
-    box(0.2f*super.radius, 0.4f*super.radius, 0.4f*super.radius);
+    box(0.2*super.radius, 0.4*super.radius, 0.4*super.radius);
     popMatrix();
   }
 }
@@ -57,12 +57,13 @@ public class SelectableSwitch extends SelectableObject
   // Executes once just after the object is selected (button pressed)
   public void initObjectSelection(int wandID)
   {
-    zDisplace = -0.5f*physicalObject.depth;
+    zDisplace = -0.5*physicalObject.depth;
   }
 
   // Do nothing while switch is being selected
   public void whileObjectSelection(int wandID)
   {
+    
   }
 
   // Executes once just after the selection button is released
@@ -96,18 +97,20 @@ public class SelectableSwitch extends SelectableObject
     float locY = screen2WorldY(screenRelativeX, screenRelativeY, 0);
     float locZ = screen2WorldZ(screenRelativeX, screenRelativeY, 0);
     this.physicalObject.setLocation(locX, locY, locZ);
-    this.physicalObject.setRotation(
-    RUIS.inverseRotation(viewManager.getRUIScamRotMat()));
+    // Applying the inverse of ruisCamera's rotation matrix keeps the switch
+    // facing towards the viewport even when ruisCamera is manipulated
+    this.physicalObject.setRotation(inverseRotation(getCameraRotMat()));
   }
 
   public void render()
   {
     pushMatrix();
+    
     // Push the switch graphics backwards in the screen coordinate system
-    viewManager.inverseCameraRotation();
+    inverseCameraRotation();
     translate(0, 0, zDisplace);
-    viewManager.applyCameraRotation();
-
+    applyCameraRotation();
+    
     super.render();
     popMatrix();
   }

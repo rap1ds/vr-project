@@ -3,15 +3,14 @@
  @author Tuukka Takala
  @co-authors Yu Shen & Roberto Pugliese
 */
+import processing.core.*;
+import processing.opengl.*;
 
 import net.ruisystem.*;
 import net.ruisystem.input.*;
-import net.ruisystem.view.ViewManager;
-import ruisKinectLib.RuisSkeleton;
-import ruisKinectLib.RuisSkeletonManager;
+import net.ruisystem.kinect.*;
+import net.ruisystem.view.*;
 
-import processing.core.*;
-import processing.opengl.*;
 import java.lang.reflect.*;
 import javax.vecmath.*;
 
@@ -29,8 +28,6 @@ String displayConfigFileName = "displayConfig.xml";
 String inputConfigFileName = "inputConfig.xml";
 String ruisConfigFileName = "ruisConfig.xml";
 
-boolean wandInfoPrinted = false;
-
 public void setup()
 { 
   int viewCount = ViewManager.readViewCount(this, displayConfigFileName);
@@ -42,7 +39,7 @@ public void setup()
   viewManager = new ViewManager(this, VIEW_WIDTH, VIEW_HEIGHT, displayConfigFileName);
   
   ruis = new RUIS(this, viewManager, inputManager, ruisConfigFileName);
-  
+
   createShortcuts();
 
   mySetup();
@@ -57,7 +54,7 @@ public void draw()
   // Clear displays
   background(0);
   
-  // You can change camera location with RUIScamera() function that
+  // You can change camera location with ruisCamera() function that
   // behaves identically to camera() function of Processing. Do not call 
   // camera(), frustum(), or perspective() functions, because they mess 
   // up the OpenGL perspective and modelview transformations that are needed
@@ -104,11 +101,5 @@ public void draw()
     viewManager.drawBlackOutsideKeystones(viewID);
     popMatrix();
   }
-  
-  if(!wandInfoPrinted && millis() > 10000)
-  {
-    inputManager.printWands();
-    wandInfoPrinted = true;
-  }
-}
 
+}

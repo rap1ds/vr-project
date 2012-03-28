@@ -19,18 +19,18 @@ Plane plane;
 public void mySetup()
 { 
   viewManager.setDisplayGridDraw(false);
-
+  
   playerX = viewManager.getHeadX();
   playerY = viewManager.getHeadY();
   playerZ = viewManager.getHeadZ();
-
-  lookAtX = viewManager.display[0].displayCenter.x;
-  lookAtY = viewManager.display[0].displayCenter.y;
-  lookAtZ = viewManager.display[0].displayCenter.z;
+  		
+  lookAtX = display[0].center.x;
+  lookAtY = display[0].center.y;
+  lookAtZ = display[0].center.z;
 
   // Add a selectable, green switch on the view HUD, which can be interacted
   // with, but is not affected by physics
-  float switchLenght = 0.15f*viewManager.display[0].getDisplayHeight();
+  float switchLenght = 0.15*display[0].getHeight();
 
   PhysicalObject switchObj = 
     new PhysicalObject(switchLenght, switchLenght, switchLenght, 
@@ -49,18 +49,16 @@ public void mySetup()
 
   // Here are some different ways to access different wands (controllers)
   // Setting initial locations
-  wiimote[0].x = viewManager.display[0].displayCenter.x;   // also wiimote0
-  wiimote[0].y = viewManager.display[0].displayCenter.y;
-  wiimote[0].z = viewManager.display[0].displayCenter.z;
-  //skewand[0] == skewand0 etc.
-  // psmove[3] == psmove3
-  if (wand3 != null)
+  wiimote[0].x = display[0].center.x;   // also wiimote0
+  wiimote[0].y = display[0].center.y + 0.2*display[0].getHeight();
+  wiimote[0].z = display[0].center.z;
+  //skewand[0] == skewand0
+  // psmove[3] == psmove3  etc.
+  if(wand2 != null)
   {
-    wand3.x = viewManager.display[0].displayCenter.x 
-      - 0.3f*viewManager.display[0].getDisplayWidth();
-    wand3.y = viewManager.display[0].displayCenter.y
-      - 0.3f*viewManager.display[0].getDisplayHeight();
-    wand3.z = viewManager.display[0].displayCenter.z;
+    wand2.x = display[0].center.x - 0.3*display[0].getWidth();
+    wand2.y = display[0].center.y - 0.3*display[0].getHeight();
+    wand2.z = display[0].center.z;
   }
   
   Ground ground = new Ground();
@@ -84,13 +82,14 @@ public void mySetup()
   }
 }
 
-// This method is called for each view in the draw() loop.
+// This function is called for each view in the draw() loop.
 // Place only drawing function calls here, and NO interaction code!	
 public void myDraw(int viewID)
 {
   // Insert your draw code here
 
   // In order to keep ruisCamera() view and/or keystone correction intact, 
+  	
   // use only drawing and camera matrix altering functions like pushMatrix(),
   // translate(), rotateX/Y/Z(), scale(), applyMatrix(), box(), sphere() etc.
   // DO NOT use projection matrix altering functions like perspective(), 
@@ -110,12 +109,7 @@ public void myDraw(int viewID)
 
   // Draw frames around the walls in world coordinates
   viewManager.drawWallFrames();
-
-  // Draw kinect skeletons if they are detected
-  pushMatrix();
-  skeletonManager.drawSkeletons(true, true, true);
-  popMatrix();
-
+	  
   // Draw a yellow cross at the location where the camera points at
   pushMatrix();
   noStroke();
@@ -141,8 +135,8 @@ public void myDraw(int viewID)
   // object keeps facing the viewport
   inverseCameraRotation();
   fill(255, 0, 255); // Magenta box
-  float boxWidth = 0.1f*viewManager.display[0].getDisplayWidth();
-  box(boxWidth, 0.2f*boxWidth, 0.2f*boxWidth);
+  float boxWidth = 0.1*display[0].getWidth();
+  box(boxWidth, 0.2*boxWidth, 0.2*boxWidth);
   popMatrix();
 
   pushMatrix();
@@ -155,13 +149,11 @@ public void myDraw(int viewID)
 
   // Draw a yellow box fixed in view HUD, near top right corner
   pushMatrix();
-  translate(viewManager.display[0].displayCenter.x
-    + 0.4f*viewManager.display[0].getDisplayWidth(), 
-  viewManager.display[0].displayCenter.y
-    - 0.4f*viewManager.display[0].getDisplayHeight(), 
-  viewManager.display[0].displayCenter.z                );
+  translate(display[0].center.x + 0.4*display[0].getWidth(),
+            display[0].center.y - 0.4*display[0].getHeight(), 
+            display[0].center.z                               );
   fill(255, 255, 0);
-  box(0.2f*boxWidth, boxWidth, 0.2f*boxWidth);
+  box(0.2*boxWidth, boxWidth, 0.2*boxWidth);
   popMatrix();
 
   // Example: Draw a wireframe box in front and above of the wand0
@@ -180,6 +172,26 @@ public void myDraw(int viewID)
   relativeScreenX = 0.8f;
   relativeScreenY = 0.95f;
 
+  // Two examples below demonstrate how Kinect data points can be manipulated
+  pushMatrix();
+  // Shrink the skeleton if Kinect is used (not just graphical scale, this
+  // scales all data points of skeleton)
+  skeleton0.setScale(0.3*display[0].getHeight()/200);
+  // Draw all Kinect skeletons in their individual local coordinate systems
+  skeletonManager.drawSkeletons(  RuisSkeleton.DRAW_BONES 
+                                + RuisSkeleton.LOCAL_COORDINATES);
+  
+
+  // setScale of Skeleton affects both local and world coordinate systems,
+  // so lets return the tracked skeleton to it's normal centimeter scale
+  skeleton0.setScale(1.0f);
+  // Draw all Kinect skeletons in their individual world coordinate systems
+  skeletonManager.drawSkeletons(  RuisSkeleton.DRAW_BONES 
+                                + RuisSkeleton.DRAW_DIRECTIONS
+                                + RuisSkeleton.DRAW_JOINTS
+                                );
+  popMatrix();
+  
   // Draws edge lines of all RigidBodies. Should only be used for 
   // debugging physics, because this function uses slow drawing methods
   //ruis.drawRigidBodyEdges(RUIS.myWorld);
@@ -204,18 +216,18 @@ public void myInteraction()
   // poles of the lookAt point. Use an interactive up vector to avoid that.
 
   // A simple first person point of view controlling scheme (uncomment to test)
-  //ruisCameraLocation(playerX, playerY, playerZ); // wasd-keys
-  //ruisCameraRotation(playerYaw, playerPitch, playerRoll); // z,x,c,v,b,n keys
-
+  //setCameraLocation(playerX, playerY, playerZ); // wasd-keys
+  //setCameraRotation(playerYaw, playerPitch, playerRoll); // z,x,c,v,b,n keys
+  
   // This is how you can match camera rotation to wand's rotation
-  //ruisCameraRotation(wand[0].yaw, wand[0].pitch, wand[0].roll); 
-
+  //setCameraRotation(wand[0].yaw, wand[0].pitch, wand[0].roll); 
+  
   // Rotate the camera automatically around a circle path
   //float theta = millis()*0.0003f; 
-  //float radius = 2*viewManager.display[0].getDisplayWidth();
-  //ruisCamera(viewManager.display[0].displayCenter.x + radius*sin(theta),
-  //           viewManager.display[0].displayCenter.y, 
-  //           viewManager.display[0].displayCenter.z - radius*cos(theta), 
+  //float radius = 2*display[0].getWidth();
+  //ruisCamera(display[0].displayCenter.x + radius*sin(theta),
+  //           display[0].displayCenter.y, 
+  //           display[0].displayCenter.z - radius*cos(theta), 
   //           lookAtX, lookAtY, lookAtZ, 0, 1, 0                         ); 
 
   // Control camera (player) location with aswd-keys or wand0
@@ -230,9 +242,9 @@ public void myInteraction()
     incrementalMove.add(getCameraRight());
   if ( wand[0].buttonHome   || (keyPressed && key == 'q' ))
     incrementalMove.sub(getCameraUp());
-  if ( wand[0].buttonMove   || (keyPressed && key == 'e' ))
-    incrementalMove.add(viewManager.getCameraUp());
-
+  if( wand[0].buttonMove   || (keyPressed && key == 'e' ))
+    incrementalMove.add(getCameraUp());
+    
   float moveSpeed = 5;
   playerX += moveSpeed*incrementalMove.x;
   playerY += moveSpeed*incrementalMove.y;
@@ -242,29 +254,23 @@ public void myInteraction()
   if (wand0 instanceof MouseWand)
    wand[0].simulateRotation(1.5f);
 
-  // Below lines affect only the Kinect tracked skeleton
-  // Below makes skeleton0's location and rotation invariant of ruisCamera(),
-  // and pushes the skeleton0 700 cm in front of the camera
-  skeleton0.setWorldTranslationOffset(
-  PVector.add(viewManager.getCameraLocation(), 
-  PVector.mult(viewManager.getCameraForward(), 700)));
-  PMatrix3D cameraRotation = new PMatrix3D();
-  cameraRotation.rotateY( viewManager.getRUIScamRotX());
-  cameraRotation.rotateX( viewManager.getRUIScamRotY());
-  cameraRotation.rotateZ(-viewManager.getRUIScamRotZ());
-  skeleton0.setWorldRotationOffset(cameraRotation);
+  // Set the tiny skeleton to lower left corner of the display
+  skeleton0.setLocalTranslateOffset(new PVector(-.2*display[0].getWidth(), 
+                                                .8*ruis.getStaticFloorY(), 0));
+  // WorldTranslateOffset is not affected by LocalTranslateOffset
+  skeleton0.setWorldTranslateOffset(new PVector(0, 0, 10));
 }
 
 // Keyboard user interface
 public void keyPressed()
-{ 
-  // Location control for wand3 which is simulated with keyboard
-  if (key == CODED && wand3 != null)
+{
+  // Location control for wand2 which is simulated with keyboard
+  if (key == CODED && wand2 != null)
   {
-    if (keyCode == LEFT ) wand3.x -= 0.6; 
-    if (keyCode == RIGHT) wand3.x += 0.6;     
-    if (keyCode == UP   ) wand3.y -= 0.6; 
-    if (keyCode == DOWN ) wand3.y += 0.6;
+    if (keyCode == LEFT ) wand2.x -= 1.5; 
+    if (keyCode == RIGHT) wand2.x += 1.5;     
+    if (keyCode == UP   ) wand2.y -= 1.5; 
+    if (keyCode == DOWN ) wand2.y += 1.5; 
   }
 
   // Rotational control for camera
@@ -322,15 +328,12 @@ public void lightSetup()
   pushMatrix();
 
   lightSpecular(255, 255, 255);
-
-  // White point light near the ruisCamera location
+	  
+  // White point light near the point of view (ruisCamera)
   pointLight(255, 255, 255, 
-  viewManager.getCameraLocation().x 
-    - 100*viewManager.getCameraForward().x, 
-  viewManager.getCameraLocation().y 
-    - 0.3f*viewManager.display[0].getDisplayHeight(), 
-  viewManager.getCameraLocation().z 
-    - 100*viewManager.getCameraForward().z );
+             getCameraLocation().x - 100*getCameraForward().x,
+             getCameraLocation().y - 0.3*display[0].getHeight(),
+             getCameraLocation().z - 100*getCameraForward().z    );
   lightSpecular(0, 0, 0);
 
   pointLight(110, 110, 110, // All gray

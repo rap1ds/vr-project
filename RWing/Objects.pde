@@ -223,6 +223,7 @@ public class Sky extends PhysicalObject {
 
     this.setLocation(playerX, playerY, playerZ);
 
+    noLights();
     pushMatrix();
     scale(super.width, super.height, super.depth);
     beginShape(QUADS);
@@ -231,42 +232,36 @@ public class Sky extends PhysicalObject {
     textureMode(NORMALIZED);
 
     // front
-    normal(0, 0, 1);
     vertex(-1, 1, 1, 1f/4f, 2f/3f);
     vertex( 1, 1, 1, 2f/4f, 2f/3f);
     vertex( 1, -1, 1, 2f/4f, 1f/3f);
     vertex(-1, -1, 1, 1f/4f, 1f/3f);
 
     // back
-    normal(0, 0, -1);
     vertex( 1, 1, -1, 3f/4f, 2f/3f);
     vertex(-1, 1, -1, 1, 2f/3f);
     vertex(-1, -1, -1, 1, 1f/3f);
     vertex( 1, -1, -1, 3f/4f, 1f/3f);
 
     // right
-    normal(1, 0, 0);
     vertex( 1, 1, 1, 2f/4f, 2f/3f);
     vertex( 1, 1, -1, 3f/4f, 2f/3f);
     vertex( 1, -1, -1, 3f/4f, 1f/3f);
     vertex( 1, -1, 1, 2f/4f, 1f/3f);
 
     // left
-    normal(-1, 0, 0);
     vertex(-1, 1, -1, 0, 2f/3f);
     vertex(-1, 1, 1, 1f/4f, 2f/3f);
     vertex(-1, -1, 1, 1f/4f, 1f/3f);
     vertex(-1, -1, -1, 0, 1f/3f);
 
     // bottom
-    normal(0, -1, 0);
     vertex(-1, -1, 1, 1f/4f, 1f/3f);
     vertex( 1, -1, 1, 2f/4f, 1f/3f);
     vertex( 1, -1, -1, 2f/4f, 0);
     vertex(-1, -1, -1, 1f/4f, 0);
 
     // top
-    normal(0, 1, 0);
     vertex(-1, 1, -1, 1f/4f, 1);
     vertex( 1, 1, -1, 2f/4f, 1);
     vertex( 1, 1, 1, 2f/4f, 2f/3f);
@@ -275,6 +270,7 @@ public class Sky extends PhysicalObject {
     endShape();
 
     popMatrix();
+    lights();
   }
 }
 

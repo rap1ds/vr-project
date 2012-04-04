@@ -17,6 +17,10 @@ import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
 import com.bulletphysics.linearmath.DefaultMotionState;
 import com.bulletphysics.linearmath.Transform;
 
+float spherePosX = 0;
+float spherePosY = 0;
+float spherePosZ = 0;
+
 /**
  * This is how you define a new kind of Physical object with its own physical
  * behavior and own graphics rendering method.
@@ -30,8 +34,8 @@ public class ImmaterialSphere extends PhysicalObject
     // of the PhysicalObject.IMMATERIAL flag. The PhysicalObject constructor
     // with 7 arguments creates a sphere shape, whereas the constructor with 
     // 9 arguments creates a box shape
-    super(radius, 1 /* mass */, startX, startY, startZ,
-        sphereColor, PhysicalObject.IMMATERIAL_OBJECT         );
+    super(radius, 1 /* mass */, startX, startY, startZ, 
+    sphereColor, PhysicalObject.IMMATERIAL_OBJECT         );
   }
 
   // Redefine PhysicalObject's renderAtOrigin() method, which draws graphics
@@ -79,7 +83,6 @@ public class SelectableSwitch extends SelectableObject
   // Do nothing while switch is being selected
   public void whileObjectSelection(int wandID)
   {
-    
   }
 
   // Executes once just after the selection button is released
@@ -121,12 +124,12 @@ public class SelectableSwitch extends SelectableObject
   public void render()
   {
     pushMatrix();
-    
+
     // Push the switch graphics backwards in the screen coordinate system
     inverseCameraRotation();
     translate(0, 0, zDisplace);
     applyCameraRotation();
-    
+
     super.render();
     popMatrix();
   }
@@ -220,7 +223,6 @@ public class Sky extends PhysicalObject {
   }
 
   public void renderAtOrigin() {
-
     this.setLocation(playerX, playerY, playerZ);
 
     noLights();
@@ -275,11 +277,11 @@ public class Sky extends PhysicalObject {
 }
 
 public class Plane extends PhysicalObject {
-  
+
   OBJModel model;
   PVector direction, location;
   float speed, roll = 0, pitch = 0, easing = 0.3;
-  
+
   public Plane(PApplet parent, String filename, String pathType, int drawMode) {
     super(0, 0, 0, 0, 0, 0, 0);
     model = new OBJModel(parent, filename, pathType, drawMode);
@@ -287,7 +289,7 @@ public class Plane extends PhysicalObject {
     location = new PVector(0, 0, 0);
     speed = 0.5;
   }
-  
+
   public void draw() {
     location = PVector.add(location, PVector.mult(direction, speed));
     pushMatrix();
@@ -299,19 +301,19 @@ public class Plane extends PhysicalObject {
     model.draw();
     popMatrix();
   }
-  
+
   public void roll(float angle) {
     roll += easing * (angle - roll);
   }
-  
+
   public void pitch(float angle) {
     pitch += easing * (angle - pitch);
   }
-  
+
   public void addRoll(float increment) {
     roll += increment;
   }
-  
+
   public void addPitch(float increment) {
     pitch += increment;
   }
@@ -322,9 +324,18 @@ public class Checkpoint extends PhysicalObject {
   float posX;
   float posY;
   float posZ;
+  PMatrix3D rotationMatrix;
   int size;
   
+  PVector normal;
+
   PVector[] testVectors; 
+  
+  boolean passed = false;
+  
+  float prevPlayerX;
+  float prevPlayerY;
+  float prevPlayerZ;
 
   public Checkpoint(float posX, float posY, float posZ, int size) {
     super(size, size, size, 1, posX, posY, posZ, color(200), PhysicalObject.IMMATERIAL_OBJECT);
@@ -333,15 +344,53 @@ public class Checkpoint extends PhysicalObject {
     this.posX = posX;
     this.posY = posY;
     this.posZ = posZ;
-    
+
     this.test();
+    
+    this.prevPlayerX = spherePosX;
+    this.prevPlayerY = spherePosY;
+    this.prevPlayerZ = spherePosZ;
+  }
+  
+  public void setRotationMatrix(PMatrix3D rot) {
+    this.rotationMatrix = rot;
+  }
+
+  public boolean isPassed() {
+    if(passed) {
+      return true;
+    }
+    
+    // Check if passed
+    PVector p0 = new PVector(prevPlayerX, prevPlayerY, prevPlayerZ);
+    PVector p1 = new PVector(spherePosX, spherePosY, spherePosZ);
+    if(intersects(p0, p1)) {
+      this.passed = true;
+      return true;
+    }
+    
+    // Update player pos
+    prevPlayerX = spherePosX;
+    prevPlayerY = spherePosY;
+    prevPlayerZ = spherePosZ;
+    
+    return false;
   }
 
   public void renderAtOrigin() {
-    fill(0x4400CC00);
+    if(isPassed()) {
+      fill(0x4400CC00);
+    } else {
+      fill(0x44FF0000);
+    }
 
     pushMatrix();
     scale(super.width, super.height, super.depth);
+
+    pushMatrix();
+    if(rotationMatrix != null) {
+      applyMatrix(rotationMatrix);
+    }
 
     float x, y, z, s, t, u, v;
     float nx, ny, nz;
@@ -382,52 +431,55 @@ public class Checkpoint extends PhysicalObject {
       }
     }
     endShape();
+    
+    popMatrix();
 
     popMatrix();
   }
-
-  /**
-   * This is naive because it doesn't take into account the rotation of the object.
-   * Assumes the rotation is not changed from the default
-   */
-  public PVector getNaiveNormal() {
-    PVector norm = new PVector(0, 0, this.size);
-    norm.add(this.getLocation());
-    return norm;
+  
+  public void setNormal(PVector normal) {
+    this.normal = normal;
+  }
+  
+  public PVector getNormal() {
+    return normal;
   }
 
   public PVector getCenter() {
     return this.getLocation();
   }
-  
+
   /**
    * @param l0 Position at the time 0
    * @param l1 Position at the time 1
    */
   public boolean intersects(PVector l0, PVector l1) {
     PVector p0 = this.getCenter();
-    PVector n = getNaiveNormal();
+    PVector n = getNormal();
     PVector l = new PVector();
     PVector.sub(l1, l0, l);
-    
+
     PVector p0subl0 = new PVector();
     PVector.sub(p0, l0, p0subl0);
-    
+
     float d = p0subl0.dot(n) / l.dot(n);
-    
+
     PVector intersectionPoint = new PVector();
     PVector.mult(l, d, intersectionPoint);
     intersectionPoint.add(l0);
-    
+
     float dist = intersectionPoint.dist(this.getCenter());
-    
-    if(dist < this.size) {
+
+    if (dist < this.size) {
+      
       return true;
-    } else {
+      
+    } 
+    else {
       return false;
     }
   }
-  
+
   /**
    * Tests intersects method.
    *
@@ -435,21 +487,22 @@ public class Checkpoint extends PhysicalObject {
    */
   public void test() {
     PVector center = this.getLocation();
-    
+
     PVector true1 = new PVector(center.x - 50, center.y - 20, center.z);
     PVector false1 = new PVector(center.x + 150, center.y, center.z);
     PVector false2 = new PVector(center.x - 150, center.y - 20, center.z);
-    
+
     true1.mult(2);
     false1.mult(2);
     false2.mult(2);
-    
+
     PVector origin = new PVector(0, 0, 0);
-    
-    println("True1, intersects (should be true): " + this.intersects(origin, true1));
-    println("False1, intersects (should be false): " + this.intersects(origin, false1));
-    println("False2, intersects (should be false): " + this.intersects(origin, false2));
-    
+
+    // Debugging only
+    // println("True1, intersects (should be true): " + this.intersects(origin, true1));
+    // println("False1, intersects (should be false): " + this.intersects(origin, false1));
+    // println("False2, intersects (should be false): " + this.intersects(origin, false2));
+
     this.testVectors = new PVector[3];
     this.testVectors[0] = true1;
     this.testVectors[1] = false1;
@@ -470,3 +523,228 @@ public class Checkpoint extends PhysicalObject {
     myTransform.origin.z);
   }
 }
+
+public class RaceLine {
+
+  int ctrlPointCount = 20;
+  PVector[] ctrlPoints = new PVector[ctrlPointCount];
+
+  int playerCtrlPoint = 1;
+  float playerT = 0f;
+
+  float lookAtDistance = 0.005;
+  int lookAtCtrlPoint = 1;
+  float lookAtT = playerT + lookAtDistance;
+  float flyingSpeed = 0.005;
+
+  public void setup() {
+    generateControlPoints();
+    createCheckpoints();
+  }
+
+  public void generateControlPoints() {
+    ctrlPoints[0] = new PVector(0, -100, -100);
+    ctrlPoints[1] = new PVector(0, -100, 0);
+
+    for (int i = 2; i < ctrlPointCount; i++) {
+      PVector prev = ctrlPoints[i-1];
+
+      float z = prev.z + 150;
+      float x = random(-600, 600);
+      float y = random(-600, 0);
+
+      ctrlPoints[i] = new PVector(x, y, z);
+    }
+  }
+
+  public void createCheckpoints() {
+    for (int j = 1; j < 8; j++) {
+      PVector p = this.getPoint(j, 0.5);
+      Checkpoint checkpoint = new Checkpoint(p.x, p.y, p.z, 100);
+      checkpoint.setNormal(this.getDirection(j, 0.5));
+      checkpoint.setRotationMatrix(this.getRotationMatrix(j, 0.5));
+      ruis.addObject(checkpoint);
+    }
+  }
+
+  public void follow() {
+    if (lookAtCtrlPoint < ctrlPointCount - 2) {
+      // PVector playerPos = this.getPoint(playerCtrlPoint, playerT);
+      // PVector lookAtPos = this.getPoint(lookAtCtrlPoint, lookAtT);
+      PVector spherePos = this.getPoint(playerCtrlPoint, playerT);
+
+      /*
+      playerX = playerPos.x;
+      playerY = playerPos.y;
+      playerZ = playerPos.z;
+
+      lookAtX = lookAtPos.x;
+      lookAtY = lookAtPos.y;
+      lookAtZ = lookAtPos.z;
+      */
+      
+      pushMatrix();
+      fill(color(255, 255, 255));
+      translate(spherePos.x, spherePos.y, spherePos.z);
+      sphere(10);
+      popMatrix();
+      
+      spherePosX = spherePos.x;
+      spherePosY = spherePos.y;
+      spherePosZ = spherePos.z;      
+    }
+
+    if (playerT >= 1) {
+      playerT = 0;
+      playerCtrlPoint++;
+    }
+
+    if (lookAtT >= 1) {
+      lookAtT = 0;
+      lookAtCtrlPoint++;
+    }
+
+    playerT += flyingSpeed;
+    lookAtT += flyingSpeed;
+  }
+
+  public void draw() {
+
+    // Follow the race line
+    this.follow();
+
+    stroke(color(255, 0, 0));
+    noFill();
+    for (int i = 3; i < ctrlPointCount; i++) {
+      PVector p0 = ctrlPoints[i-3];
+      PVector p1 = ctrlPoints[i-2];
+      PVector p2 = ctrlPoints[i-1];
+      PVector p3 = ctrlPoints[i];
+      curve(p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, p2.x, p2.y, p2.z, p3.x, p3.y, p3.z);
+    }
+    noStroke();
+  }
+
+  /**
+   * Gets point on the spline.
+   *
+   * Example: 
+   *   
+   *   The point in the middle of control points 3 and 4 (where control point is zero-based)
+   *   controlPoint: 3
+   *   t: 0.5
+   *
+   * @param controlPoint number of control point
+   * @param t the value of t [0,1]
+   */
+  public PVector getPoint(int controlPoint, float t) {
+    // Equation
+    /*
+        q(t) = 0.5 *((2 * P1) + // pTerm1
+     	       (-P0 + P2) * t + // pTerm2
+     (2*P0 - 5*P1 + 4*P2 - P3) * t^2 + // pTerm3
+     (-P0 + 3*P1- 3*P2 + P3) * t^3) // pTerm4
+     */
+    PVector p0 = ctrlPoints[controlPoint - 1];
+    PVector p1 = ctrlPoints[controlPoint];
+    PVector p2 = ctrlPoints[controlPoint + 1];
+    PVector p3 = ctrlPoints[controlPoint + 2];
+
+    PVector pTerm1 = new PVector();
+    PVector pTerm2 = new PVector();
+    PVector pTerm3 = new PVector();
+    PVector pTerm4 = new PVector();
+
+    // Term1
+    pTerm1.add(p1);
+    pTerm1.mult(2);
+
+    // Term2
+    pTerm2.sub(p0);
+    pTerm2.add(p2);
+    pTerm2.mult(t);
+
+    // Term3
+    pTerm3.add(PVector.mult(p0, 2));
+    pTerm3.add(PVector.mult(p1, -5));
+    pTerm3.add(PVector.mult(p2, 4));
+    pTerm3.add(PVector.mult(p3, -1));
+    pTerm3.mult(t*t);
+
+    // Term 4
+    pTerm4.add(PVector.mult(p0, -1));
+    pTerm4.add(PVector.mult(p1, 3));
+    pTerm4.add(PVector.mult(p2, -3));
+    pTerm4.add(PVector.mult(p3, 1));
+    pTerm4.mult(t*t*t);
+
+    // Sum
+    PVector sum = new PVector();
+    sum.add(pTerm1);
+    sum.add(pTerm2);
+    sum.add(pTerm3);
+    sum.add(pTerm4);
+    sum.mult(0.5f);
+
+    return sum;
+  }
+
+  public PVector getDirection(int controlPoint, float t) {
+    /* Equation:
+     0.5 ( 3t^2 (-P0 + 3P1 - 3P2 + P3) // pTerm1
+     + 2t (2P0 - 5P1 + 4P2 - P3) // pTerm2
+     - P0 + P2 )
+     */
+
+    PVector p0 = ctrlPoints[controlPoint - 1];
+    PVector p1 = ctrlPoints[controlPoint];
+    PVector p2 = ctrlPoints[controlPoint + 1];
+    PVector p3 = ctrlPoints[controlPoint + 2];    
+
+    PVector pTerm1 = new PVector();
+    PVector pTerm2 = new PVector();
+
+    // Term 1
+    pTerm1.add(PVector.mult(p0, -1));
+    pTerm1.add(PVector.mult(p1, 3));
+    pTerm1.add(PVector.mult(p2, -3));
+    pTerm1.add(PVector.mult(p3, 1));
+    pTerm1.mult(3f * t * t);
+
+    // Term 2
+    pTerm2.add(PVector.mult(p0, 2));
+    pTerm2.add(PVector.mult(p1, -5));
+    pTerm2.add(PVector.mult(p2, 4));
+    pTerm2.add(PVector.mult(p3, -1));
+    pTerm2.mult(2f * t);
+
+    // Sum
+    PVector sum = new PVector();
+    sum.add(pTerm1);
+    sum.add(pTerm2);
+    sum.sub(p0);
+    sum.add(p2);
+    sum.mult(0.5f);
+
+    return sum;
+  }
+  
+  public PMatrix3D getRotationMatrix(int controlPoint, float t) {
+      PVector F = this.getDirection(controlPoint, t);
+      F.normalize();
+      PVector U = new PVector(0, 1, 0);
+      PVector R = PVector.cross(F, U, null);
+      U = PVector.cross(R, F, null);
+
+      PMatrix3D rot = new PMatrix3D(
+      F.x, U.x, R.x, 0, 
+      F.y, U.y, R.y, 0, 
+      F.z, U.z, R.z, 0, 
+      0, 0, 0, 1);
+      
+      rot.rotateY(HALF_PI);
+      
+      return rot;  
+  }
+}
+

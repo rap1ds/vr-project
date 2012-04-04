@@ -14,16 +14,19 @@ float playerRoll  = 0;
 PVector incrementalMove = new PVector(0, 0, 0);
 
 Plane plane;
+RaceLine raceLine;
+
+
 
 // This function is called only once in the setup() function
 public void mySetup()
 { 
   viewManager.setDisplayGridDraw(false);
-  
+
   playerX = viewManager.getHeadX();
   playerY = viewManager.getHeadY();
   playerZ = viewManager.getHeadZ();
-  		
+
   lookAtX = display[0].center.x;
   lookAtY = display[0].center.y;
   lookAtZ = display[0].center.z;
@@ -54,32 +57,36 @@ public void mySetup()
   wiimote[0].z = display[0].center.z;
   //skewand[0] == skewand0
   // psmove[3] == psmove3  etc.
-  if(wand2 != null)
+  if (wand2 != null)
   {
     wand2.x = display[0].center.x - 0.3*display[0].getWidth();
     wand2.y = display[0].center.y - 0.3*display[0].getHeight();
     wand2.z = display[0].center.z;
   }
-  
+
   Ground ground = new Ground();
   ruis.addObject(ground);
-  
+
   Sky sky = new Sky();
   ruis.addObject(sky);
-  
+
   plane = new Plane(this, "plane.obj", "relative", TRIANGLE_FAN);
-  
+  raceLine = new RaceLine();
+  raceLine.setup();
+
+  /*
   float z = 100;
   float x, y;
-  for(int i = 0; i < 10; i++) {
-    
+  for (int i = 0; i < 10; i++) {
+
     z += 400;
     x = random(-400, 400);
     y = random(-400, -800); // WTF? Why negative values are above the ground and positive values are below?
-    
+
     Checkpoint checkpoint = new Checkpoint(x, y, z, 100);
     ruis.addObject(checkpoint);
   }
+  */
 }
 
 // This function is called for each view in the draw() loop.
@@ -89,7 +96,7 @@ public void myDraw(int viewID)
   // Insert your draw code here
 
   // In order to keep ruisCamera() view and/or keystone correction intact, 
-  	
+
   // use only drawing and camera matrix altering functions like pushMatrix(),
   // translate(), rotateX/Y/Z(), scale(), applyMatrix(), box(), sphere() etc.
   // DO NOT use projection matrix altering functions like perspective(), 
@@ -109,8 +116,9 @@ public void myDraw(int viewID)
 
   // Draw frames around the walls in world coordinates
   viewManager.drawWallFrames();
-	  
+
   // Draw a yellow cross at the location where the camera points at
+  /*
   pushMatrix();
   noStroke();
   translate(lookAtX, lookAtY, lookAtZ);
@@ -118,8 +126,10 @@ public void myDraw(int viewID)
   box(4);
   box(2, 10, 2);
   popMatrix();
-  
+  */
+
   plane.draw();
+  raceLine.draw();
 
   // You can get world coordinates from any (x,y) point on the display
   // screen using screen2WorldX/Y/Z method. This is useful when drawing
@@ -149,9 +159,9 @@ public void myDraw(int viewID)
 
   // Draw a yellow box fixed in view HUD, near top right corner
   pushMatrix();
-  translate(display[0].center.x + 0.4*display[0].getWidth(),
-            display[0].center.y - 0.4*display[0].getHeight(), 
-            display[0].center.z                               );
+  translate(display[0].center.x + 0.4*display[0].getWidth(), 
+  display[0].center.y - 0.4*display[0].getHeight(), 
+  display[0].center.z                               );
   fill(255, 255, 0);
   box(0.2*boxWidth, boxWidth, 0.2*boxWidth);
   popMatrix();
@@ -179,19 +189,19 @@ public void myDraw(int viewID)
   skeleton0.setScale(0.3*display[0].getHeight()/200);
   // Draw all Kinect skeletons in their individual local coordinate systems
   skeletonManager.drawSkeletons(  RuisSkeleton.DRAW_BONES 
-                                + RuisSkeleton.LOCAL_COORDINATES);
-  
+    + RuisSkeleton.LOCAL_COORDINATES);
+
 
   // setScale of Skeleton affects both local and world coordinate systems,
   // so lets return the tracked skeleton to it's normal centimeter scale
   skeleton0.setScale(1.0f);
   // Draw all Kinect skeletons in their individual world coordinate systems
   skeletonManager.drawSkeletons(  RuisSkeleton.DRAW_BONES 
-                                + RuisSkeleton.DRAW_DIRECTIONS
-                                + RuisSkeleton.DRAW_JOINTS
-                                );
+    + RuisSkeleton.DRAW_DIRECTIONS
+    + RuisSkeleton.DRAW_JOINTS
+    );
   popMatrix();
-  
+
   // Draws edge lines of all RigidBodies. Should only be used for 
   // debugging physics, because this function uses slow drawing methods
   //ruis.drawRigidBodyEdges(RUIS.myWorld);
@@ -218,10 +228,10 @@ public void myInteraction()
   // A simple first person point of view controlling scheme (uncomment to test)
   //setCameraLocation(playerX, playerY, playerZ); // wasd-keys
   //setCameraRotation(playerYaw, playerPitch, playerRoll); // z,x,c,v,b,n keys
-  
+
   // This is how you can match camera rotation to wand's rotation
   //setCameraRotation(wand[0].yaw, wand[0].pitch, wand[0].roll); 
-  
+
   // Rotate the camera automatically around a circle path
   //float theta = millis()*0.0003f; 
   //float radius = 2*display[0].getWidth();
@@ -242,9 +252,9 @@ public void myInteraction()
     incrementalMove.add(getCameraRight());
   if ( wand[0].buttonHome   || (keyPressed && key == 'q' ))
     incrementalMove.sub(getCameraUp());
-  if( wand[0].buttonMove   || (keyPressed && key == 'e' ))
+  if ( wand[0].buttonMove   || (keyPressed && key == 'e' ))
     incrementalMove.add(getCameraUp());
-    
+
   float moveSpeed = 5;
   playerX += moveSpeed*incrementalMove.x;
   playerY += moveSpeed*incrementalMove.y;
@@ -252,11 +262,11 @@ public void myInteraction()
 
   // If wand0 is a mouse, you can simulate the 3-axis rotation
   if (wand0 instanceof MouseWand)
-   wand[0].simulateRotation(1.5f);
+    wand[0].simulateRotation(1.5f);
 
   // Set the tiny skeleton to lower left corner of the display
   skeleton0.setLocalTranslateOffset(new PVector(-.2*display[0].getWidth(), 
-                                                .8*ruis.getStaticFloorY(), 0));
+  .8*ruis.getStaticFloorY(), 0));
   // WorldTranslateOffset is not affected by LocalTranslateOffset
   skeleton0.setWorldTranslateOffset(new PVector(0, 0, 10));
 }
@@ -266,31 +276,32 @@ public void keyPressed()
 { 
   // Location control for wand3 which is simulated with keyboard
   /*if (key == CODED && wand3 != null)
-  {
-    if (keyCode == LEFT ) wand3.x -= 0.6; 
-    if (keyCode == RIGHT) wand3.x += 0.6;     
-    if (keyCode == UP   ) wand3.y -= 0.6; 
-    if (keyCode == DOWN ) wand3.y += 0.6;
-  }*/
+   {
+   if (keyCode == LEFT ) wand3.x -= 0.6; 
+   if (keyCode == RIGHT) wand3.x += 0.6;     
+   if (keyCode == UP   ) wand3.y -= 0.6; 
+   if (keyCode == DOWN ) wand3.y += 0.6;
+   }*/
+
   if (keyCode == LEFT ) plane.addPitch(0.01); 
   if (keyCode == RIGHT) plane.addPitch(-0.01);     
   if (keyCode == UP   ) plane.addRoll(-0.01); 
   if (keyCode == DOWN ) plane.addRoll(0.01);
 
   // Rotational control for camera
-  if (key=='z') playerYaw   -= 0.02;
-  if (key=='x') playerYaw   += 0.02;
-  if (key=='b') playerPitch += 0.02;
-  if (key=='n') playerPitch -= 0.02;
-  if (key=='c') playerRoll  -= 0.02;
-  if (key=='v') playerRoll  += 0.02;
+  if (key=='z') playerYaw   -= 0.08;
+  if (key=='x') playerYaw   += 0.08;
+  if (key=='b') playerPitch += 0.08;
+  if (key=='n') playerPitch -= 0.08;
+  if (key=='c') playerRoll  -= 0.08;
+  if (key=='v') playerRoll  += 0.08;
 
-  if (key == 'j') lookAtX -= 5;
-  if (key == 'l') lookAtX += 5;
-  if (key == 'o') lookAtY -= 5;
-  if (key == 'u') lookAtY += 5;
-  if (key == 'i') lookAtZ -= 5;
-  if (key == 'k') lookAtZ += 5;
+  if (key == 'j') lookAtX -= 30;
+  if (key == 'l') lookAtX += 30;
+  if (key == 'o') lookAtY -= 30;
+  if (key == 'u') lookAtY += 30;
+  if (key == 'i') lookAtZ -= 30;
+  if (key == 'k') lookAtZ += 30;
 
   // Simulate head tracking with keyboard. Notice the view distortion.
   if (key == 'f') viewManager.incThreadedHeadX(-5);
@@ -332,12 +343,12 @@ public void lightSetup()
   pushMatrix();
 
   lightSpecular(255, 255, 255);
-	  
+
   // White point light near the point of view (ruisCamera)
   pointLight(255, 255, 255, 
-             getCameraLocation().x - 100*getCameraForward().x,
-             getCameraLocation().y - 0.3*display[0].getHeight(),
-             getCameraLocation().z - 100*getCameraForward().z    );
+  getCameraLocation().x - 100*getCameraForward().x, 
+  getCameraLocation().y - 0.3*display[0].getHeight(), 
+  getCameraLocation().z - 100*getCameraForward().z    );
   lightSpecular(0, 0, 0);
 
   pointLight(110, 110, 110, // All gray
@@ -391,3 +402,4 @@ public void onStartPose(String pose, int userId)
   inputManager.ni.stopPoseDetection(userId); 
   inputManager.ni.requestCalibrationSkeleton(userId, true);
 }
+

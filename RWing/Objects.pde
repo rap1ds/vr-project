@@ -319,6 +319,8 @@ public class Plane extends PhysicalObject {
   }
 }
 
+boolean isFirst = true;
+
 public class Checkpoint extends PhysicalObject {
 
   float posX;
@@ -332,6 +334,8 @@ public class Checkpoint extends PhysicalObject {
   PVector[] testVectors; 
   
   boolean passed = false;
+  
+  boolean debug;
   
   float prevPlayerX;
   float prevPlayerY;
@@ -347,9 +351,20 @@ public class Checkpoint extends PhysicalObject {
 
     this.test();
     
+    /*
     this.prevPlayerX = spherePosX;
     this.prevPlayerY = spherePosY;
     this.prevPlayerZ = spherePosZ;
+    */
+
+    this.prevPlayerX = playerX;
+    this.prevPlayerY = playerY;
+    this.prevPlayerZ = playerZ;
+    
+    debug = false;
+    
+    isFirst = false;
+    
   }
   
   public void setRotationMatrix(PMatrix3D rot) {
@@ -363,16 +378,23 @@ public class Checkpoint extends PhysicalObject {
     
     // Check if passed
     PVector p0 = new PVector(prevPlayerX, prevPlayerY, prevPlayerZ);
-    PVector p1 = new PVector(spherePosX, spherePosY, spherePosZ);
+    // PVector p1 = new PVector(spherePosX, spherePosY, spherePosZ);
+    PVector p1 = new PVector(playerX, playerY, playerZ);
     if(intersects(p0, p1)) {
       this.passed = true;
       return true;
     }
     
     // Update player pos
+    /*
     prevPlayerX = spherePosX;
     prevPlayerY = spherePosY;
     prevPlayerZ = spherePosZ;
+    */
+    
+    prevPlayerX = playerX;
+    prevPlayerY = playerY;
+    prevPlayerZ = playerZ;
     
     return false;
   }
@@ -471,9 +493,17 @@ public class Checkpoint extends PhysicalObject {
     float dist = intersectionPoint.dist(this.getCenter());
 
     if (dist < this.size) {
+      PVector nl0 = PVector.sub(p0, l0);
+      PVector nl1 = PVector.sub(p0, l1);
+
+      float angle0 = PVector.angleBetween(n, nl0);
+      float angle1 = PVector.angleBetween(n, nl1);
       
-      return true;
+      if(angle0 < HALF_PI && angle1 >= HALF_PI) {
+        return true;
+      }
       
+      return false;
     } 
     else {
       return false;
@@ -497,11 +527,6 @@ public class Checkpoint extends PhysicalObject {
     false2.mult(2);
 
     PVector origin = new PVector(0, 0, 0);
-
-    // Debugging only
-    // println("True1, intersects (should be true): " + this.intersects(origin, true1));
-    // println("False1, intersects (should be false): " + this.intersects(origin, false1));
-    // println("False2, intersects (should be false): " + this.intersects(origin, false2));
 
     this.testVectors = new PVector[3];
     this.testVectors[0] = true1;
@@ -569,11 +594,10 @@ public class RaceLine {
 
   public void follow() {
     if (lookAtCtrlPoint < ctrlPointCount - 2) {
-      // PVector playerPos = this.getPoint(playerCtrlPoint, playerT);
-      // PVector lookAtPos = this.getPoint(lookAtCtrlPoint, lookAtT);
-      PVector spherePos = this.getPoint(playerCtrlPoint, playerT);
+      PVector playerPos = this.getPoint(playerCtrlPoint, playerT);
+      PVector lookAtPos = this.getPoint(lookAtCtrlPoint, lookAtT);
+      // PVector spherePos = this.getPoint(playerCtrlPoint, playerT);
 
-      /*
       playerX = playerPos.x;
       playerY = playerPos.y;
       playerZ = playerPos.z;
@@ -581,17 +605,17 @@ public class RaceLine {
       lookAtX = lookAtPos.x;
       lookAtY = lookAtPos.y;
       lookAtZ = lookAtPos.z;
-      */
       
       pushMatrix();
       fill(color(255, 255, 255));
-      translate(spherePos.x, spherePos.y, spherePos.z);
-      sphere(10);
+      translate(playerPos.x, playerPos.y, playerPos.z);
+      // sphere(10);
       popMatrix();
-      
+      /*
       spherePosX = spherePos.x;
       spherePosY = spherePos.y;
-      spherePosZ = spherePos.z;      
+      spherePosZ = spherePos.z;  
+  */    
     }
 
     if (playerT >= 1) {
@@ -611,7 +635,7 @@ public class RaceLine {
   public void draw() {
 
     // Follow the race line
-    this.follow();
+    // this.follow();
 
     stroke(color(255, 0, 0));
     noFill();

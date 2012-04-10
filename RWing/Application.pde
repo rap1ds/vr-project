@@ -295,6 +295,7 @@ public void keyPressed()
   if (keyCode == UP   ) plane.pitch(-0.05); 
   if (keyCode == DOWN ) plane.pitch(0.05);
 
+
   // Rotational control for camera
   if (key=='z') playerYaw   -= 0.08;
   if (key=='x') playerYaw   += 0.08;

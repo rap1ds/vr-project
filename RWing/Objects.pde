@@ -289,7 +289,7 @@ public class Plane extends PhysicalObject {
     direction = new PVector(0, 0, 1);
     location = new PVector(0, 0, 0);
     transform = new PMatrix3D();
-    speed = 0.5;
+    speed = 1.5;
   }
 
   public void draw() {

@@ -33,7 +33,7 @@ public void mySetup()
   lookAtX = display[0].center.x;
   lookAtY = display[0].center.y;
   lookAtZ = display[0].center.z;
-
+  
   // Add a selectable, green switch on the view HUD, which can be interacted
   // with, but is not affected by physics
   float switchLenght = 0.15*display[0].getHeight();
@@ -77,7 +77,7 @@ public void mySetup()
   raceLine = new RaceLine();
   raceLine.setup();
 
-  followCamera = new Camera(plane, new PVector(0.0f, -50.0f, -150.0f));
+  followCamera = new Camera(plane, new PVector(0.0f, -25.0f, -150.0f));
 
   /*
   float z = 100;
@@ -290,10 +290,10 @@ public void keyPressed()
    if (keyCode == DOWN ) wand3.y += 0.6;
    }*/
 
-  if (keyCode == LEFT ) plane.addRoll(0.01); 
-  if (keyCode == RIGHT) plane.addRoll(-0.01);     
-  if (keyCode == UP   ) plane.addPitch(-0.01); 
-  if (keyCode == DOWN ) plane.addPitch(0.01);
+  if (keyCode == LEFT ) plane.addRoll(0.025); 
+  if (keyCode == RIGHT) plane.addRoll(-0.025);     
+  if (keyCode == UP   ) plane.addPitch(-0.025); 
+  if (keyCode == DOWN ) plane.addPitch(0.025);
 
   // Rotational control for camera
   if (key=='z') playerYaw   -= 0.08;

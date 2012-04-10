@@ -290,10 +290,10 @@ public void keyPressed()
    if (keyCode == DOWN ) wand3.y += 0.6;
    }*/
 
-  if (keyCode == LEFT ) plane.addRoll(0.025); 
-  if (keyCode == RIGHT) plane.addRoll(-0.025);     
-  if (keyCode == UP   ) plane.addPitch(-0.025); 
-  if (keyCode == DOWN ) plane.addPitch(0.025);
+  if (keyCode == LEFT ) plane.roll(0.05); 
+  if (keyCode == RIGHT) plane.roll(-0.05);     
+  if (keyCode == UP   ) plane.pitch(-0.05); 
+  if (keyCode == DOWN ) plane.pitch(0.05);
 
   // Rotational control for camera
   if (key=='z') playerYaw   -= 0.08;

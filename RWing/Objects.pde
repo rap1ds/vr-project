@@ -279,65 +279,54 @@ public class Sky extends PhysicalObject {
 public class Plane extends PhysicalObject {
 
   OBJModel model;
-  PVector direction, location;
-  float speed, roll = 0, pitch = 0, easing = 0.3;
+  PVector baseDirection, direction, location;
   PMatrix3D transform;
-
+  Quaternion rotation;
+  float speed;
+  
   public Plane(PApplet parent, String filename, String pathType, int drawMode) {
     super(0, 0, 0, 0, 0, 0, 0);
     model = new OBJModel(parent, filename, pathType, drawMode);
+    baseDirection = new PVector(0, 0, 1);
     direction = new PVector(0, 0, 1);
     location = new PVector(0, 0, 0);
     transform = new PMatrix3D();
-    speed = 1.5;
+    rotation = Quaternion.createIdentity();
+    speed = 1;
   }
 
   public void draw() {
+    direction = rotation.rotateVector(baseDirection);
+    
+    PVector eulerAngles = rotation.getAsEulerAngles();
     
     transform.reset();
     transform.translate(location.x, location.y, location.z);
     transform.translate(0, -8, 0);    
-    transform.rotateZ(roll);
-    transform.rotateX(pitch);
+    transform.rotateZ(eulerAngles.z);
+    transform.rotateY(eulerAngles.y);
+    transform.rotateX(eulerAngles.x);
     transform.translate(0, 8, 0);
     
     pushMatrix();
-//    translate(location.x, location.y, location.z);
-//    translate(0, -8, 0);
-//    rotateX(pitch);
-//    rotateZ(roll);
-//    translate(0, 8, 0);
     applyMatrix(transform);
+    
     model.draw();
+    
     popMatrix();
     
-    // transform forward direction
-    PVector forward = direction;
-    
-    PMatrix3D m = new PMatrix3D(transform);
-    if (m.invert()) {
-      m.transpose();
-      forward = transformNormal(m, direction);
-    }
-    
     // update location
-    location = PVector.add(location, PVector.mult(forward, speed));
+    location = PVector.add(location, PVector.mult(direction, speed));
   }
 
   public void roll(float angle) {
-    roll += easing * (angle - roll);
+    Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), angle);
+    rotation = rotation.mult(roll);
   }
 
   public void pitch(float angle) {
-    pitch += easing * (angle - pitch);
-  }
-
-  public void addRoll(float increment) {
-    roll += increment;
-  }
-
-  public void addPitch(float increment) {
-    pitch += increment;
+    Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), angle);
+    rotation = rotation.mult(pitch);
   }
 }
 

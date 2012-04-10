@@ -12,6 +12,18 @@ public SkeletonWand skewand0, skewand1, skewand2, skewand3;
 public RuisSkeleton skeleton0, skeleton1, skeleton2, skeleton3;
 public RuisSkeletonManager skeletonManager;
 
+public PVector transformNormal(PMatrix3D m, PVector v)
+{
+  PVector result = new PVector();
+  
+  // Transform without using translation
+  result.x = m.multX(v.x, v.y, v.z, 0.0f);
+  result.y = m.multY(v.x, v.y, v.z, 0.0f);
+  result.z = m.multZ(v.x, v.y, v.z, 0.0f);
+  
+  return result;
+}
+  
 /**
  * Maps a point on a view plane into X location in world coordinate system. 
  * The HUDx and HUDy arguments are relative view HUD locations, and in most 

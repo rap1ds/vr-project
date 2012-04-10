@@ -281,25 +281,47 @@ public class Plane extends PhysicalObject {
   OBJModel model;
   PVector direction, location;
   float speed, roll = 0, pitch = 0, easing = 0.3;
+  PMatrix3D transform;
 
   public Plane(PApplet parent, String filename, String pathType, int drawMode) {
     super(0, 0, 0, 0, 0, 0, 0);
     model = new OBJModel(parent, filename, pathType, drawMode);
     direction = new PVector(0, 0, 1);
     location = new PVector(0, 0, 0);
+    transform = new PMatrix3D();
     speed = 0.5;
   }
 
   public void draw() {
-    location = PVector.add(location, PVector.mult(direction, speed));
+    
+    transform.reset();
+    transform.translate(location.x, location.y, location.z);
+    transform.translate(0, -8, 0);    
+    transform.rotateZ(roll);
+    transform.rotateX(pitch);
+    transform.translate(0, 8, 0);
+    
     pushMatrix();
-    translate(location.x, location.y, location.z);
-    translate(0, -8, 0);
-    rotateX(roll);
-    rotateZ(pitch);
-    translate(0, 8, 0);
+//    translate(location.x, location.y, location.z);
+//    translate(0, -8, 0);
+//    rotateX(pitch);
+//    rotateZ(roll);
+//    translate(0, 8, 0);
+    applyMatrix(transform);
     model.draw();
     popMatrix();
+    
+    // transform forward direction
+    PVector forward = direction;
+    
+    PMatrix3D m = new PMatrix3D(transform);
+    if (m.invert()) {
+      m.transpose();
+      forward = transformNormal(m, direction);
+    }
+    
+    // update location
+    location = PVector.add(location, PVector.mult(forward, speed));
   }
 
   public void roll(float angle) {

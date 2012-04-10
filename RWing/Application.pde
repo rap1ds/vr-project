@@ -10,13 +10,16 @@ float lookAtZ = 0;
 float playerYaw   = 0; 
 float playerPitch = 0; 
 float playerRoll  = 0; 
+float upX = 0;
+float upY = 1;
+float upZ = 0;
 
 PVector incrementalMove = new PVector(0, 0, 0);
 
 Plane plane;
 RaceLine raceLine;
 
-
+Camera followCamera;
 
 // This function is called only once in the setup() function
 public void mySetup()
@@ -74,6 +77,8 @@ public void mySetup()
   raceLine = new RaceLine();
   raceLine.setup();
 
+  followCamera = new Camera(plane, new PVector(0.0f, -50.0f, -150.0f));
+
   /*
   float z = 100;
   float x, y;
@@ -106,6 +111,8 @@ public void myDraw(int viewID)
   // point of view in RUIS, but they have to be invoked in myInteraction()
   // function. See examples there.
 
+  followCamera.update();
+  
   // Lights
   lightSetup();
 
@@ -159,9 +166,9 @@ public void myDraw(int viewID)
 
   // Draw a yellow box fixed in view HUD, near top right corner
   pushMatrix();
-  translate(display[0].center.x + 0.4*display[0].getWidth(), 
-  display[0].center.y - 0.4*display[0].getHeight(), 
-  display[0].center.z                               );
+  translate(display[0].center.x + 0.4*display[0].getWidth(),
+            display[0].center.y - 0.4*display[0].getHeight(), 
+            display[0].center.z                               );
   fill(255, 255, 0);
   box(0.2*boxWidth, boxWidth, 0.2*boxWidth);
   popMatrix();
@@ -221,7 +228,7 @@ public void myInteraction()
   // Use ruisCamera() method instead of camera(). ruisCamera() accepts the
   // same arguments and behaves seemingly identically to camera() function. 
   // Example: \     Camera center      /  \    Point to look at    /  \  Up /
-  ruisCamera( playerX, playerY, playerZ, lookAtX, lookAtY, lookAtZ, 0f, 1f, 0f);
+  ruisCamera( playerX, playerY, playerZ, lookAtX, lookAtY, lookAtZ, upX, upY, upZ);
   // In the above example the camera can get seemingly stuck in north and south
   // poles of the lookAt point. Use an interactive up vector to avoid that.
 
@@ -266,7 +273,7 @@ public void myInteraction()
 
   // Set the tiny skeleton to lower left corner of the display
   skeleton0.setLocalTranslateOffset(new PVector(-.2*display[0].getWidth(), 
-  .8*ruis.getStaticFloorY(), 0));
+                                                .8*ruis.getStaticFloorY(), 0));
   // WorldTranslateOffset is not affected by LocalTranslateOffset
   skeleton0.setWorldTranslateOffset(new PVector(0, 0, 10));
 }
@@ -283,10 +290,10 @@ public void keyPressed()
    if (keyCode == DOWN ) wand3.y += 0.6;
    }*/
 
-  if (keyCode == LEFT ) plane.addPitch(0.01); 
-  if (keyCode == RIGHT) plane.addPitch(-0.01);     
-  if (keyCode == UP   ) plane.addRoll(-0.01); 
-  if (keyCode == DOWN ) plane.addRoll(0.01);
+  if (keyCode == LEFT ) plane.addRoll(0.01); 
+  if (keyCode == RIGHT) plane.addRoll(-0.01);     
+  if (keyCode == UP   ) plane.addPitch(-0.01); 
+  if (keyCode == DOWN ) plane.addPitch(0.01);
 
   // Rotational control for camera
   if (key=='z') playerYaw   -= 0.08;
@@ -346,9 +353,9 @@ public void lightSetup()
 
   // White point light near the point of view (ruisCamera)
   pointLight(255, 255, 255, 
-  getCameraLocation().x - 100*getCameraForward().x, 
-  getCameraLocation().y - 0.3*display[0].getHeight(), 
-  getCameraLocation().z - 100*getCameraForward().z    );
+             getCameraLocation().x - 100*getCameraForward().x,
+             getCameraLocation().y - 0.3*display[0].getHeight(),
+             getCameraLocation().z - 100*getCameraForward().z    );
   lightSpecular(0, 0, 0);
 
   pointLight(110, 110, 110, // All gray

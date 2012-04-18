@@ -124,17 +124,6 @@ public void myDraw(int viewID)
   // Draw frames around the walls in world coordinates
   viewManager.drawWallFrames();
 
-  // Draw a yellow cross at the location where the camera points at
-  /*
-  pushMatrix();
-  noStroke();
-  translate(lookAtX, lookAtY, lookAtZ);
-  fill(255, 255, 0);
-  box(4);
-  box(2, 10, 2);
-  popMatrix();
-  */
-
   plane.draw();
   raceLine.draw();
 

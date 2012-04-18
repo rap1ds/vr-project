@@ -389,19 +389,11 @@ public class Checkpoint extends PhysicalObject {
     
     // Check if passed
     PVector p0 = new PVector(prevPlayerX, prevPlayerY, prevPlayerZ);
-    // PVector p1 = new PVector(spherePosX, spherePosY, spherePosZ);
     PVector p1 = new PVector(playerX, playerY, playerZ);
     if(intersects(p0, p1)) {
       this.passed = true;
       return true;
     }
-    
-    // Update player pos
-    /*
-    prevPlayerX = spherePosX;
-    prevPlayerY = spherePosY;
-    prevPlayerZ = spherePosZ;
-    */
     
     prevPlayerX = playerX;
     prevPlayerY = playerY;
@@ -607,7 +599,6 @@ public class RaceLine {
     if (lookAtCtrlPoint < ctrlPointCount - 2) {
       PVector playerPos = this.getPoint(playerCtrlPoint, playerT);
       PVector lookAtPos = this.getPoint(lookAtCtrlPoint, lookAtT);
-      // PVector spherePos = this.getPoint(playerCtrlPoint, playerT);
 
       playerX = playerPos.x;
       playerY = playerPos.y;
@@ -620,13 +611,7 @@ public class RaceLine {
       pushMatrix();
       fill(color(255, 255, 255));
       translate(playerPos.x, playerPos.y, playerPos.z);
-      // sphere(10);
       popMatrix();
-      /*
-      spherePosX = spherePos.x;
-      spherePosY = spherePos.y;
-      spherePosZ = spherePos.z;  
-  */    
     }
 
     if (playerT >= 1) {

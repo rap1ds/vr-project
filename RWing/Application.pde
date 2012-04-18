@@ -1,15 +1,15 @@
 /* The application logic is here */
 
 // Your global variables:
-float playerX =  0; 
-float playerY =  0; 
-float playerZ =  0; 
+float playerX =  0;
+float playerY =  0;
+float playerZ =  0;
 float lookAtX = 0;
 float lookAtY = 0;
 float lookAtZ = 0;
-float playerYaw   = 0; 
-float playerPitch = 0; 
-float playerRoll  = 0; 
+float playerYaw   = 0;
+float playerPitch = 0;
+float playerRoll  = 0;
 float upX = 0;
 float upY = 1;
 float upZ = 0;
@@ -25,7 +25,7 @@ Camera followCamera;
 
 // This function is called only once in the setup() function
 public void mySetup()
-{ 
+{
   viewManager.setDisplayGridDraw(false);
 
   playerX = viewManager.getHeadX();
@@ -35,23 +35,23 @@ public void mySetup()
   lookAtX = display[0].center.x;
   lookAtY = display[0].center.y;
   lookAtZ = display[0].center.z;
-  
+
   // Add a selectable, green switch on the view HUD, which can be interacted
   // with, but is not affected by physics
   float switchLenght = 0.15*display[0].getHeight();
 
-  PhysicalObject switchObj = 
-    new PhysicalObject(switchLenght, switchLenght, switchLenght, 
-  0 /* mass */, 0 /* locX */, 0 /* locY */, 
-  0 /* locZ */, color(0, 255, 55), 
+  PhysicalObject switchObj =
+    new PhysicalObject(switchLenght, switchLenght, switchLenght,
+  0 /* mass */, 0 /* locX */, 0 /* locY */,
+  0 /* locZ */, color(0, 255, 55),
   PhysicalObject.IMMATERIAL_OBJECT         );
 
   float screenRelativeX = 0.1f;
   float screenRelativeY = 0.9f;
-  // SelectableSwitch contains interaction behavior, see its definition in 
+  // SelectableSwitch contains interaction behavior, see its definition in
   // MyObjects.pde
-  SelectableSwitch selSwitch = new SelectableSwitch(switchObj, 
-  screenRelativeX, 
+  SelectableSwitch selSwitch = new SelectableSwitch(switchObj,
+  screenRelativeX,
   screenRelativeY );
   ruis.addObject(selSwitch);
 
@@ -79,34 +79,20 @@ public void mySetup()
   raceLine = new RaceLine();
   raceLine.setup();
 
-  followCamera = new Camera(plane, new PVector(0.0f, -25.0f, -150.0f));
-
-  /*
-  float z = 100;
-  float x, y;
-  for (int i = 0; i < 10; i++) {
-
-    z += 400;
-    x = random(-400, 400);
-    y = random(-400, -800); // WTF? Why negative values are above the ground and positive values are below?
-
-    Checkpoint checkpoint = new Checkpoint(x, y, z, 100);
-    ruis.addObject(checkpoint);
-  }
-  */
+  followCamera = new Camera(plane, new PVector(0.0f, -25.0f, -300.0f));
 }
 
 // This function is called for each view in the draw() loop.
-// Place only drawing function calls here, and NO interaction code!	
+// Place only drawing function calls here, and NO interaction code!
 public void myDraw(int viewID)
 {
   // Insert your draw code here
 
-  // In order to keep ruisCamera() view and/or keystone correction intact, 
+  // In order to keep ruisCamera() view and/or keystone correction intact,
 
   // use only drawing and camera matrix altering functions like pushMatrix(),
   // translate(), rotateX/Y/Z(), scale(), applyMatrix(), box(), sphere() etc.
-  // DO NOT use projection matrix altering functions like perspective(), 
+  // DO NOT use projection matrix altering functions like perspective(),
   // camera(), resetMatrix(), frustum(), beginCamera(), etc.
 
   // There are functions like ruisCamera() and others that change the
@@ -114,7 +100,7 @@ public void myDraw(int viewID)
   // function. See examples there.
 
   followCamera.update();
-  
+
   // Lights
   lightSetup();
 
@@ -133,11 +119,11 @@ public void myDraw(int viewID)
   // screen using screen2WorldX/Y/Z method. This is useful when drawing
   // HUD graphics.
   pushMatrix();
-  float relativeScreenX = 0.1f; 
+  float relativeScreenX = 0.1f;
   float relativeScreenY = 0.1f;
   int displayID = 0;
-  translate(screen2WorldX(relativeScreenX, relativeScreenY, displayID), 
-  screen2WorldY(relativeScreenX, relativeScreenY, displayID), 
+  translate(screen2WorldX(relativeScreenX, relativeScreenY, displayID),
+  screen2WorldY(relativeScreenX, relativeScreenY, displayID),
   screen2WorldZ(relativeScreenX, relativeScreenY, displayID) );
   // The RUIScamera rotation needs to be negated so that the HUD
   // object keeps facing the viewport
@@ -151,14 +137,14 @@ public void myDraw(int viewID)
 
   // If you just want to draw graphics on the HUD that are not
   // represented as PhysicalOjects, then it's more simple
-  // to negate both the rotation AND translation of RUIScamera 
+  // to negate both the rotation AND translation of RUIScamera
   // transformation and draw items where the display screens are
   inverseCameraTransform();
 
   // Draw a yellow box fixed in view HUD, near top right corner
   pushMatrix();
   translate(display[0].center.x + 0.4*display[0].getWidth(),
-            display[0].center.y - 0.4*display[0].getHeight(), 
+            display[0].center.y - 0.4*display[0].getHeight(),
             display[0].center.z                               );
   fill(255, 255, 0);
   box(0.2*boxWidth, boxWidth, 0.2*boxWidth);
@@ -168,7 +154,7 @@ public void myDraw(int viewID)
   noFill();
   stroke(255);
   pushMatrix();
-  translate(wand0.x, 
+  translate(wand0.x,
   wand0.y - 3, // Translate above
   wand0.z - 3    ); // Translate in front
   wand0.applyRotation();
@@ -186,7 +172,7 @@ public void myDraw(int viewID)
   // scales all data points of skeleton)
   skeleton0.setScale(0.3*display[0].getHeight()/200);
   // Draw all Kinect skeletons in their individual local coordinate systems
-  skeletonManager.drawSkeletons(  RuisSkeleton.DRAW_BONES 
+  skeletonManager.drawSkeletons(  RuisSkeleton.DRAW_BONES
     + RuisSkeleton.LOCAL_COORDINATES);
 
 
@@ -194,15 +180,19 @@ public void myDraw(int viewID)
   // so lets return the tracked skeleton to it's normal centimeter scale
   skeleton0.setScale(1.0f);
   // Draw all Kinect skeletons in their individual world coordinate systems
-  skeletonManager.drawSkeletons(  RuisSkeleton.DRAW_BONES 
+  skeletonManager.drawSkeletons(  RuisSkeleton.DRAW_BONES
     + RuisSkeleton.DRAW_DIRECTIONS
     + RuisSkeleton.DRAW_JOINTS
     );
   popMatrix();
 
-  // Draws edge lines of all RigidBodies. Should only be used for 
+  // Draws edge lines of all RigidBodies. Should only be used for
   // debugging physics, because this function uses slow drawing methods
   //ruis.drawRigidBodyEdges(RUIS.myWorld);
+
+  stroke(color(255, 0, 0));
+  line(wand[0].x, wand[0].y, wand[0].z, wand[2].x, wand[2].y, wand[2].z);
+  noStroke();
 }
 
 // This function is called only once in the draw() loop
@@ -217,7 +207,7 @@ public void myInteraction()
   // buttons is a common approach.
 
   // Use ruisCamera() method instead of camera(). ruisCamera() accepts the
-  // same arguments and behaves seemingly identically to camera() function. 
+  // same arguments and behaves seemingly identically to camera() function.
   // Example: \     Camera center      /  \    Point to look at    /  \  Up /
   ruisCamera( playerX, playerY, playerZ, lookAtX, lookAtY, lookAtZ, upX, upY, upZ);
   // In the above example the camera can get seemingly stuck in north and south
@@ -228,19 +218,46 @@ public void myInteraction()
   //setCameraRotation(playerYaw, playerPitch, playerRoll); // z,x,c,v,b,n keys
 
   // This is how you can match camera rotation to wand's rotation
-  //setCameraRotation(wand[0].yaw, wand[0].pitch, wand[0].roll); 
+  //setCameraRotation(wand[0].yaw, wand[0].pitch, wand[0].roll);
 
   // Rotate the camera automatically around a circle path
-  //float theta = millis()*0.0003f; 
+  //float theta = millis()*0.0003f;
   //float radius = 2*display[0].getWidth();
   //ruisCamera(display[0].displayCenter.x + radius*sin(theta),
-  //           display[0].displayCenter.y, 
-  //           display[0].displayCenter.z - radius*cos(theta), 
-  //           lookAtX, lookAtY, lookAtZ, 0, 1, 0                         ); 
+  //           display[0].displayCenter.y,
+  //           display[0].displayCenter.z - radius*cos(theta),
+  //           lookAtX, lookAtY, lookAtZ, 0, 1, 0                         );
 
-  if(!useKeyboard)
-    plane.setEuler(wand[0].roll, wand[0].pitch);
-  
+if (true) {
+  Wand leftWand = wand[2];
+  Wand rightWand = wand[0];
+
+  leftWand.x = 0;
+  leftWand.y = 0;
+
+  leftWand.z = rightWand.z;
+
+  PVector wands = new PVector(rightWand.x, rightWand.y, rightWand.z);
+  wands.sub(new PVector(leftWand.x, leftWand.y, leftWand.z));
+  wands.normalize();
+
+  PVector wandsWithoutY = new PVector(wands.x, 0, wands.z);
+  wandsWithoutY.normalize();
+
+  boolean counterClockwise = rightWand.y > leftWand.y;
+
+  float angle = wands.dot(wandsWithoutY);
+  angle = acos(angle);
+
+  if(counterClockwise) {
+    angle *= -1;
+  }
+
+  print("Angle between: " + angle);
+
+  plane.setEuler(angle, wand[0].pitch);
+}
+
   // Control camera (player) location with aswd-keys or wand0
   incrementalMove.set(0, 0, 0);
   if ( wand[0].buttonO      || (keyPressed && key == 's' ))
@@ -259,16 +276,18 @@ public void myInteraction()
     wand[0].pitch = 1.0f;
 
   float moveSpeed = 5;
-  playerX += moveSpeed*incrementalMove.x;
-  playerY += moveSpeed*incrementalMove.y;
-  playerZ += moveSpeed*incrementalMove.z;
+  // playerX += moveSpeed*incrementalMove.x;
+  // playerY += moveSpeed*incrementalMove.y;
+  // playerZ += moveSpeed*incrementalMove.z;
 
   // If wand0 is a mouse, you can simulate the 3-axis rotation
   /*if (wand0 instanceof MouseWand)
-    wand[0].simulateRotation(1.5f);*/
+    wand[0].simulateRotation(1.5f);
+  */
+
 
   // Set the tiny skeleton to lower left corner of the display
-  skeleton0.setLocalTranslateOffset(new PVector(-.2*display[0].getWidth(), 
+  skeleton0.setLocalTranslateOffset(new PVector(-.2*display[0].getWidth(),
                                                 .8*ruis.getStaticFloorY(), 0));
   // WorldTranslateOffset is not affected by LocalTranslateOffset
   skeleton0.setWorldTranslateOffset(new PVector(0, 0, 10));
@@ -276,19 +295,19 @@ public void myInteraction()
 
 // Keyboard user interface
 public void keyPressed()
-{ 
+{
   // Location control for wand3 which is simulated with keyboard
   /*if (key == CODED && wand3 != null)
    {
-   if (keyCode == LEFT ) wand3.x -= 0.6; 
-   if (keyCode == RIGHT) wand3.x += 0.6;     
-   if (keyCode == UP   ) wand3.y -= 0.6; 
+   if (keyCode == LEFT ) wand3.x -= 0.6;
+   if (keyCode == RIGHT) wand3.x += 0.6;
+   if (keyCode == UP   ) wand3.y -= 0.6;
    if (keyCode == DOWN ) wand3.y += 0.6;
    }*/
 
-  if (keyCode == LEFT ) plane.roll(0.05); 
-  if (keyCode == RIGHT) plane.roll(-0.05);     
-  if (keyCode == UP   ) plane.pitch(-0.05); 
+  if (keyCode == LEFT ) plane.roll(0.05);
+  if (keyCode == RIGHT) plane.roll(-0.05);
+  if (keyCode == UP   ) plane.pitch(-0.05);
   if (keyCode == DOWN ) plane.pitch(0.05);
 
 
@@ -349,7 +368,7 @@ public void lightSetup()
   lightSpecular(255, 255, 255);
 
   // White point light near the point of view (ruisCamera)
-  pointLight(255, 255, 255, 
+  pointLight(255, 255, 255,
              getCameraLocation().x - 100*getCameraForward().x,
              getCameraLocation().y - 0.3*display[0].getHeight(),
              getCameraLocation().z - 100*getCameraForward().z    );
@@ -387,13 +406,13 @@ public void onStartCalibration(int userId)
 
 public void onEndCalibration(int userId, boolean successfull)
 {
-  if (successfull) 
-  { 
+  if (successfull)
+  {
     println("  User calibrated !!!");
     inputManager.ni.startTrackingSkeleton(userId);
-  } 
-  else 
-  { 
+  }
+  else
+  {
     inputManager.ni.startPoseDetection("Psi", userId);
   }
 }
@@ -403,7 +422,7 @@ public void onStartPose(String pose, int userId)
   print("onStartdPose - userId: " + userId + ", pose: " + pose);
   println(".  Stop pose detection");
 
-  inputManager.ni.stopPoseDetection(userId); 
+  inputManager.ni.stopPoseDetection(userId);
   inputManager.ni.requestCalibrationSkeleton(userId, true);
 }
 

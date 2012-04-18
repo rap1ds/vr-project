@@ -16,6 +16,8 @@ float upZ = 0;
 
 PVector incrementalMove = new PVector(0, 0, 0);
 
+boolean useKeyboard = true;
+
 Plane plane;
 RaceLine raceLine;
 
@@ -247,8 +249,8 @@ public void myInteraction()
   //           display[0].displayCenter.z - radius*cos(theta), 
   //           lookAtX, lookAtY, lookAtZ, 0, 1, 0                         ); 
 
-if (false)
-  plane.setEuler(wand[0].roll, wand[0].pitch);
+  if(!useKeyboard)
+    plane.setEuler(wand[0].roll, wand[0].pitch);
   
   // Control camera (player) location with aswd-keys or wand0
   incrementalMove.set(0, 0, 0);
@@ -264,6 +266,8 @@ if (false)
     incrementalMove.sub(getCameraUp());
   if ( wand[0].buttonMove   || (keyPressed && key == 'e' ))
     incrementalMove.add(getCameraUp());
+  if (keyPressed && key == 'p')
+    wand[0].pitch = 1.0f;
 
   float moveSpeed = 5;
   playerX += moveSpeed*incrementalMove.x;
@@ -271,8 +275,8 @@ if (false)
   playerZ += moveSpeed*incrementalMove.z;
 
   // If wand0 is a mouse, you can simulate the 3-axis rotation
-  if (wand0 instanceof MouseWand)
-    wand[0].simulateRotation(1.5f);
+  /*if (wand0 instanceof MouseWand)
+    wand[0].simulateRotation(1.5f);*/
 
   // Set the tiny skeleton to lower left corner of the display
   skeleton0.setLocalTranslateOffset(new PVector(-.2*display[0].getWidth(), 

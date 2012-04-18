@@ -284,6 +284,14 @@ public class Plane extends PhysicalObject {
   Quaternion rotation;
   float speed;
   
+  float stiffness = 3000.0f;
+  float damping = 1000.0f;
+  float mass = 10.0f;
+  
+  PVector currentRot = new PVector(0, 0);
+  PVector desiredRot = new PVector(0, 0);
+  PVector rotVelocity = new PVector(0, 0);
+  
   public Plane(PApplet parent, String filename, String pathType, int drawMode) {
     super(0, 0, 0, 0, 0, 0, 0);
     model = new OBJModel(parent, filename, pathType, drawMode);
@@ -317,22 +325,42 @@ public class Plane extends PhysicalObject {
     
     // update location
     location = PVector.add(location, PVector.mult(direction, speed));
+    
+    // Calculate "easing angle" with spring force
+    
+    // Calculate displacement force
+    PVector displacement = PVector.sub(currentRot, desiredRot);
+    PVector force = PVector.sub(PVector.mult(displacement, -stiffness), PVector.mult(rotVelocity, damping));
+    
+    // TODO: this shouldn't be hard-coded for 60 fps
+    float elapsed = 0.016f;
+        
+    // Calculate acceleration and velocity based on force and update location
+    PVector acceleration = PVector.div(force, mass);
+    rotVelocity.add(PVector.mult(acceleration, elapsed));
+    
+    PVector applyRot = PVector.mult(rotVelocity, elapsed);
+    currentRot.add(applyRot);
+  
+    Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), applyRot.x);
+    Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), applyRot.y);
+    rotation = rotation.mult(roll.mult(pitch));
   }
 
   public void roll(float angle) {
-    Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), angle);
-    rotation = rotation.mult(roll);
+    /*Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), angle);
+    rotation = rotation.mult(roll);*/
+    desiredRot.x += angle;
   }
 
   public void pitch(float angle) {
-    Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), angle);
-    rotation = rotation.mult(pitch);
+    /*Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), angle);
+    rotation = rotation.mult(pitch);*/
+    desiredRot.y += angle;
   }
   
   public void setEuler(float roll_angle, float pitch_angle) {
-    Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), roll_angle);
-    Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), pitch_angle);
-    rotation = roll.mult(pitch);
+    desiredRot = new PVector(roll_angle, pitch_angle);
   }
 }
 

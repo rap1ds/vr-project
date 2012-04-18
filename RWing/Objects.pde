@@ -300,7 +300,11 @@ public class Plane extends PhysicalObject {
     location = new PVector(0, 0, 0);
     transform = new PMatrix3D();
     rotation = Quaternion.createIdentity();
-    speed = 1;
+    speed = 2;
+    
+    // Turn the plane 180
+    Quaternion yaw = Quaternion.createFromAxisAngle(new PVector(0, 1, 0), PI);
+    rotation = rotation.mult(yaw);
   }
 
   public void draw() {
@@ -359,8 +363,9 @@ public class Plane extends PhysicalObject {
     desiredRot.y += angle;
   }
   
-  public void setEuler(float roll_angle, float pitch_angle) {
-    desiredRot = new PVector(roll_angle, pitch_angle);
+  public void setEuler(float rollAngle, float pitchAngle) {
+    desiredRot.y += pitchAngle;
+    desiredRot.x = rollAngle;
   }
 }
 
@@ -601,13 +606,13 @@ public class RaceLine {
   }
 
   public void generateControlPoints() {
-    ctrlPoints[0] = new PVector(0, -100, -100);
-    ctrlPoints[1] = new PVector(0, -100, 0);
+    ctrlPoints[0] = new PVector(0, -100, 0);
+    ctrlPoints[1] = new PVector(0, -100, -600);
 
     for (int i = 2; i < ctrlPointCount; i++) {
       PVector prev = ctrlPoints[i-1];
 
-      float z = prev.z + 150;
+      float z = prev.z - 600;
       float x = random(-600, 600);
       float y = random(-600, 0);
 

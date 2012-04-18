@@ -328,6 +328,12 @@ public class Plane extends PhysicalObject {
     Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), angle);
     rotation = rotation.mult(pitch);
   }
+  
+  public void setEuler(float roll_angle, float pitch_angle) {
+    Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), roll_angle);
+    Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), pitch_angle);
+    rotation = roll.mult(pitch);
+  }
 }
 
 boolean isFirst = true;

@@ -247,6 +247,9 @@ public void myInteraction()
   //           display[0].displayCenter.z - radius*cos(theta), 
   //           lookAtX, lookAtY, lookAtZ, 0, 1, 0                         ); 
 
+if (false)
+  plane.setEuler(wand[0].roll, wand[0].pitch);
+  
   // Control camera (player) location with aswd-keys or wand0
   incrementalMove.set(0, 0, 0);
   if ( wand[0].buttonO      || (keyPressed && key == 's' ))

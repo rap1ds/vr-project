@@ -284,6 +284,14 @@ public class Plane extends PhysicalObject {
   Quaternion rotation;
   float speed;
   
+  float stiffness = 3000.0f;
+  float damping = 1000.0f;
+  float mass = 10.0f;
+  
+  PVector currentRot = new PVector(0, 0);
+  PVector desiredRot = new PVector(0, 0);
+  PVector rotVelocity = new PVector(0, 0);
+  
   public Plane(PApplet parent, String filename, String pathType, int drawMode) {
     super(0, 0, 0, 0, 0, 0, 0);
     model = new OBJModel(parent, filename, pathType, drawMode);
@@ -317,26 +325,44 @@ public class Plane extends PhysicalObject {
     
     // update location
     location = PVector.add(location, PVector.mult(direction, speed));
+    
+    // Calculate "easing angle" with spring force
+    
+    // Calculate displacement force
+    PVector displacement = PVector.sub(currentRot, desiredRot);
+    PVector force = PVector.sub(PVector.mult(displacement, -stiffness), PVector.mult(rotVelocity, damping));
+    
+    // TODO: this shouldn't be hard-coded for 60 fps
+    float elapsed = 0.016f;
+        
+    // Calculate acceleration and velocity based on force and update location
+    PVector acceleration = PVector.div(force, mass);
+    rotVelocity.add(PVector.mult(acceleration, elapsed));
+    
+    PVector applyRot = PVector.mult(rotVelocity, elapsed);
+    currentRot.add(applyRot);
+  
+    Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), applyRot.x);
+    Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), applyRot.y);
+    rotation = rotation.mult(roll.mult(pitch));
   }
 
   public void roll(float angle) {
-    Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), angle);
-    rotation = rotation.mult(roll);
+    /*Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), angle);
+    rotation = rotation.mult(roll);*/
+    desiredRot.x += angle;
   }
 
   public void pitch(float angle) {
-    Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), angle);
-    rotation = rotation.mult(pitch);
+    /*Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), angle);
+    rotation = rotation.mult(pitch);*/
+    desiredRot.y += angle;
   }
   
   public void setEuler(float roll_angle, float pitch_angle) {
-    Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), roll_angle);
-    Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), pitch_angle);
-    rotation = roll.mult(pitch);
+    desiredRot = new PVector(roll_angle, pitch_angle);
   }
 }
-
-boolean isFirst = true;
 
 public class Checkpoint extends PhysicalObject {
 
@@ -344,13 +370,11 @@ public class Checkpoint extends PhysicalObject {
   float posY;
   float posZ;
   PMatrix3D rotationMatrix;
-  int size;
+  int size, index;
   
   PVector normal;
 
-  PVector[] testVectors; 
-  
-  boolean passed = false;
+  PVector[] testVectors;
   
   boolean debug;
   
@@ -358,10 +382,11 @@ public class Checkpoint extends PhysicalObject {
   float prevPlayerY;
   float prevPlayerZ;
 
-  public Checkpoint(float posX, float posY, float posZ, int size) {
+  public Checkpoint(float posX, float posY, float posZ, int size, int index) {
     super(size, size, size, 1, posX, posY, posZ, color(200), PhysicalObject.IMMATERIAL_OBJECT);
 
     this.size = size;
+    this.index = index;
     this.posX = posX;
     this.posY = posY;
     this.posZ = posZ;
@@ -379,9 +404,6 @@ public class Checkpoint extends PhysicalObject {
     this.prevPlayerZ = playerZ;
     
     debug = false;
-    
-    isFirst = false;
-    
   }
   
   public void setRotationMatrix(PMatrix3D rot) {
@@ -389,15 +411,12 @@ public class Checkpoint extends PhysicalObject {
   }
 
   public boolean isPassed() {
-    if(passed) {
-      return true;
-    }
     
     // Check if passed
     PVector p0 = new PVector(prevPlayerX, prevPlayerY, prevPlayerZ);
     PVector p1 = new PVector(playerX, playerY, playerZ);
     if(intersects(p0, p1)) {
-      this.passed = true;
+      raceLine.current++;
       return true;
     }
     
@@ -409,10 +428,12 @@ public class Checkpoint extends PhysicalObject {
   }
 
   public void renderAtOrigin() {
-    if(isPassed()) {
+    if (index > raceLine.current) {
+      fill(0x44AA0000);
+    } else if (index < raceLine.current || isPassed()) {
       fill(0x4400CC00);
     } else {
-      fill(0x44FF0000);
+      fill(0x440000CC);
     }
 
     pushMatrix();
@@ -562,6 +583,9 @@ public class RaceLine {
 
   int ctrlPointCount = 20;
   PVector[] ctrlPoints = new PVector[ctrlPointCount];
+  
+  int checkpointCount = 8, current = 0;
+  Checkpoint[] checkpoints = new Checkpoint[checkpointCount];
 
   int playerCtrlPoint = 1;
   float playerT = 0f;
@@ -592,11 +616,12 @@ public class RaceLine {
   }
 
   public void createCheckpoints() {
-    for (int j = 1; j < 8; j++) {
+    for (int j = 1; j <= checkpointCount; j++) {
       PVector p = this.getPoint(j, 0.5);
-      Checkpoint checkpoint = new Checkpoint(p.x, p.y, p.z, 100);
+      Checkpoint checkpoint = new Checkpoint(p.x, p.y, p.z, 100, j-1);
       checkpoint.setNormal(this.getDirection(j, 0.5));
       checkpoint.setRotationMatrix(this.getRotationMatrix(j, 0.5));
+      checkpoints[j-1] = checkpoint;
       ruis.addObject(checkpoint);
     }
   }

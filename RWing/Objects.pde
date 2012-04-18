@@ -364,21 +364,17 @@ public class Plane extends PhysicalObject {
   }
 }
 
-boolean isFirst = true;
-
 public class Checkpoint extends PhysicalObject {
 
   float posX;
   float posY;
   float posZ;
   PMatrix3D rotationMatrix;
-  int size;
+  int size, index;
   
   PVector normal;
 
-  PVector[] testVectors; 
-  
-  boolean passed = false;
+  PVector[] testVectors;
   
   boolean debug;
   
@@ -386,10 +382,11 @@ public class Checkpoint extends PhysicalObject {
   float prevPlayerY;
   float prevPlayerZ;
 
-  public Checkpoint(float posX, float posY, float posZ, int size) {
+  public Checkpoint(float posX, float posY, float posZ, int size, int index) {
     super(size, size, size, 1, posX, posY, posZ, color(200), PhysicalObject.IMMATERIAL_OBJECT);
 
     this.size = size;
+    this.index = index;
     this.posX = posX;
     this.posY = posY;
     this.posZ = posZ;
@@ -407,9 +404,6 @@ public class Checkpoint extends PhysicalObject {
     this.prevPlayerZ = playerZ;
     
     debug = false;
-    
-    isFirst = false;
-    
   }
   
   public void setRotationMatrix(PMatrix3D rot) {
@@ -417,16 +411,13 @@ public class Checkpoint extends PhysicalObject {
   }
 
   public boolean isPassed() {
-    if(passed) {
-      return true;
-    }
     
     // Check if passed
     PVector p0 = new PVector(prevPlayerX, prevPlayerY, prevPlayerZ);
     // PVector p1 = new PVector(spherePosX, spherePosY, spherePosZ);
     PVector p1 = new PVector(playerX, playerY, playerZ);
     if(intersects(p0, p1)) {
-      this.passed = true;
+      raceLine.current++;
       return true;
     }
     
@@ -445,10 +436,12 @@ public class Checkpoint extends PhysicalObject {
   }
 
   public void renderAtOrigin() {
-    if(isPassed()) {
+    if (index > raceLine.current) {
+      fill(0x44AA0000);
+    } else if (index < raceLine.current || isPassed()) {
       fill(0x4400CC00);
     } else {
-      fill(0x44FF0000);
+      fill(0x440000CC);
     }
 
     pushMatrix();
@@ -598,6 +591,9 @@ public class RaceLine {
 
   int ctrlPointCount = 20;
   PVector[] ctrlPoints = new PVector[ctrlPointCount];
+  
+  int checkpointCount = 8, current = 0;
+  Checkpoint[] checkpoints = new Checkpoint[checkpointCount];
 
   int playerCtrlPoint = 1;
   float playerT = 0f;
@@ -628,11 +624,12 @@ public class RaceLine {
   }
 
   public void createCheckpoints() {
-    for (int j = 1; j < 8; j++) {
+    for (int j = 1; j <= checkpointCount; j++) {
       PVector p = this.getPoint(j, 0.5);
-      Checkpoint checkpoint = new Checkpoint(p.x, p.y, p.z, 100);
+      Checkpoint checkpoint = new Checkpoint(p.x, p.y, p.z, 100, j-1);
       checkpoint.setNormal(this.getDirection(j, 0.5));
       checkpoint.setRotationMatrix(this.getRotationMatrix(j, 0.5));
+      checkpoints[j-1] = checkpoint;
       ruis.addObject(checkpoint);
     }
   }

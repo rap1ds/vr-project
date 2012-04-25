@@ -119,8 +119,8 @@ public void myInteraction()
              camera.target.x, camera.target.y, camera.target.z,
              camera.up.x, camera.up.y, camera.up.z);
   
-  Wand leftWand = wand[2];
-  Wand rightWand = wand[0];
+  Wand leftWand = wand[0];
+  Wand rightWand = wand[2];
   
   // uncomment for mouse dev testing
   /*
@@ -129,21 +129,20 @@ public void myInteraction()
   leftWand.z = rightWand.z;
   */
   
-  
-  float a = rightWand.y - leftWand.y;
   PVector wandDiff = new PVector(rightWand.x - leftWand.x, 
                                  0, 
                                  rightWand.z - leftWand.z);
+                                 
+  float a = rightWand.y - leftWand.y;
+  float b = wandDiff.mag();
 
-  float angle = atan2(a, wandDiff.mag()); 
+  float angle = atan2(a, b);
+  
   // account for going over 90'
   if (wandDiff.x > 0) angle = -angle;
 
   if(!useKeyboard)
     plane.setEuler(angle, wand[0].pitch);
-
-  if (keyPressed && key == 'p')
-    wand[0].pitch = 1.0f;
 
   // Set the tiny skeleton to lower left corner of the display
   skeleton0.setLocalTranslateOffset(new PVector(-.2*display[0].getWidth(),
@@ -169,6 +168,9 @@ public void keyPressed()
     if (keyCode == RIGHT) plane.roll(-0.05);
     if (keyCode == UP   ) plane.pitch(-0.05);
     if (keyCode == DOWN ) plane.pitch(0.05);
+    
+    if (key == 'p')
+      wand[0].pitch = 1.0f;
   }
 
   // Simulate head tracking with keyboard. Notice the view distortion.

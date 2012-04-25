@@ -93,7 +93,7 @@ public class Sky extends PhysicalObject {
   PImage skyTexture;
 
   public Sky() {
-    this(2000);
+    this(5000);
   }
 
   public Sky(int skySize) {
@@ -254,7 +254,7 @@ public class Plane extends PhysicalObject {
   }
   
   public void setEuler(float rollAngle, float pitchAngle) {
-    //tänne constraint...
+    // TODO: tanne constraint...
     desiredRot.y += pitchAngle;
     desiredRot.x = rollAngle;
   }

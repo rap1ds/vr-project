@@ -231,11 +231,6 @@ public void myInteraction()
 
 if (true) {
   
-  /*
-   * This is a naive implementation which assumes that the user is standing face towards the screen
-   * It's naive because we're doing x and y comparisons.
-   */
-  
   Wand leftWand = wand[2];
   Wand rightWand = wand[0];
 
@@ -244,52 +239,17 @@ if (true) {
 
   leftWand.z = rightWand.z;
 
-  PVector wands = new PVector(rightWand.x, rightWand.y, rightWand.z);
-  wands.sub(new PVector(leftWand.x, leftWand.y, leftWand.z));
-  wands.normalize();
+  PVector wandDiff = new PVector(rightWand.x - leftWand.x, 
+                                 rightWand.y - leftWand.y, 
+                                 rightWand.z - leftWand.z);
+  PVector wandDiffWithoutY = new PVector(wandDiff.x, 0, wandDiff.z);  
 
-  
-  PVector wandsWithoutY = new PVector(wands.x, 0, wands.z);
-  wandsWithoutY.normalize();
+  float angle = atan2(wandDiff.y, wandDiffWithoutY.mag()); 
+  // fix right side rotation to be opposite
+  if (wandDiff.x > 0) angle = -angle;
 
-  float angle = wands.dot(wandsWithoutY);
-  angle = acos(angle);
-  
-  // "Yksikkoympyra" Parts I, II, III and IV (counter-clockwise)
-  boolean partsIIIorIV = rightWand.y > leftWand.y;
-  boolean partsIIorIII = rightWand.x < leftWand.x;
-  if(partsIIIorIV) {
-    if(partsIIorIII) {
-      angle = PI + angle;
-      // print("Part III, angle: " + angle);
-    } else {
-      angle = TWO_PI - angle;
-      // print("Part IV, angle: " + angle);    
-    }
-    
-  } else {
-    if(partsIIorIII) {
-      angle = PI - angle;
-      // print("Part II, angle: " + angle);   
-    } else {
-      // print("Part I, angle: " + angle);
-    }
-  }
-  
-  /*
-   * There's a discountinuity when moving from angle 1 degree to angle 359 degree. 
-   * The plane is rotated 358 degrees, not 2 degrees. The following moves this discontinuity
-   * between the parts II and III because it is very distractive if the discontinuity point is
-   * between I and IV 
-   */
-  /*
-  if(angle > PI) {
-    angle -= TWO_PI;
-  }
-  */
   if(!useKeyboard)
     plane.setEuler(angle, wand[0].pitch);
-  //println(angle + "    " + wand[0].pitch);
 }
 
   // Control camera (player) location with aswd-keys or wand0

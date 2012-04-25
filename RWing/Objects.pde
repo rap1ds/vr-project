@@ -336,13 +336,13 @@ public class Plane extends PhysicalObject {
     
     // Calculate "easing angle" with spring force
     
-    // Apply +- TWO_PI to currentRot if it's closer to desiredRot that way
-    if (abs(currentRot.x + TWO_PI - desiredRot.x) < abs(currentRot.x - desiredRot.x)) {
-      currentRot.x += TWO_PI;
-    } else if (abs(currentRot.x - TWO_PI - desiredRot.x) < abs(currentRot.x - desiredRot.x)) {
-      currentRot.x -= TWO_PI;
+    // Apply +- PI to currentRot if it's closer to desiredRot that way, fixes bump at +-PI/2
+    if (abs(currentRot.x + PI - desiredRot.x) < abs(currentRot.x - desiredRot.x)) {
+      currentRot.x += PI;
+    } else if (abs(currentRot.x - PI - desiredRot.x) < abs(currentRot.x - desiredRot.x)) {
+      currentRot.x -= PI;
     }
-
+  
     // Calculate displacement force
     PVector displacement = PVector.sub(currentRot, desiredRot);    
     PVector force = PVector.sub(PVector.mult(displacement, -stiffness), PVector.mult(rotVelocity, damping));

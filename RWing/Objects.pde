@@ -300,7 +300,7 @@ public class Plane extends PhysicalObject {
     location = new PVector(0, 0, 0);
     transform = new PMatrix3D();
     rotation = Quaternion.createIdentity();
-    speed = 2;
+    speed = 0.5;
     
     // Turn the plane 180
     Quaternion yaw = Quaternion.createFromAxisAngle(new PVector(0, 1, 0), PI);
@@ -367,6 +367,10 @@ public class Plane extends PhysicalObject {
     desiredRot.y += pitchAngle;
     desiredRot.x = rollAngle;
   }
+  
+  public PVector getLocation() {
+    return this.location;
+  }
 }
 
 public class Checkpoint extends PhysicalObject {
@@ -383,9 +387,9 @@ public class Checkpoint extends PhysicalObject {
   
   boolean debug;
   
-  float prevPlayerX;
-  float prevPlayerY;
-  float prevPlayerZ;
+  float prevPosX;
+  float prevPosY;
+  float prevPosZ;
 
   public Checkpoint(float posX, float posY, float posZ, int size, int index) {
     super(size, size, size, 1, posX, posY, posZ, color(200), PhysicalObject.IMMATERIAL_OBJECT);
@@ -399,14 +403,12 @@ public class Checkpoint extends PhysicalObject {
     this.test();
     
     /*
-    this.prevPlayerX = spherePosX;
-    this.prevPlayerY = spherePosY;
-    this.prevPlayerZ = spherePosZ;
+    this.prevPosX = spherePosX;
+    this.prevPosY = spherePosY;
+    this.prevPosZ = spherePosZ;
     */
 
-    this.prevPlayerX = playerX;
-    this.prevPlayerY = playerY;
-    this.prevPlayerZ = playerZ;
+    this.updatePlanePos(plane.getLocation());
     
     debug = false;
   }
@@ -414,20 +416,26 @@ public class Checkpoint extends PhysicalObject {
   public void setRotationMatrix(PMatrix3D rot) {
     this.rotationMatrix = rot;
   }
+  
+  private void updatePlanePos(PVector planePos) {
+    this.prevPosX = planePos.x;
+    this.prevPosY = planePos.y;
+    this.prevPosZ = planePos.z;
+  }
 
   public boolean isPassed() {
     
+    PVector planePos = plane.getLocation();
+    
     // Check if passed
-    PVector p0 = new PVector(prevPlayerX, prevPlayerY, prevPlayerZ);
-    PVector p1 = new PVector(playerX, playerY, playerZ);
+    PVector p0 = new PVector(prevPosX, prevPosY, prevPosZ);
+    PVector p1 = planePos;
     if(intersects(p0, p1)) {
       raceLine.current++;
       return true;
     }
     
-    prevPlayerX = playerX;
-    prevPlayerY = playerY;
-    prevPlayerZ = playerZ;
+    this.updatePlanePos(planePos);
     
     return false;
   }

@@ -2,7 +2,8 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://ruisystem.net/ruiscfg ruiscfg.xsd">
     <physics>
-        <gravity x="0.0" y="9.8" z="0.0" />
+        <gravity x="0.0" y="9.8" z="0.0" /> <!-- Gravity not adjustable yet -->
+
         <staticWalls floorY="150" roofY="-300" frontWallZ="1000"
                      backWallZ="-1300" leftWallX="-1000" rightWallX="1300" />
         <dynamicWorld boundingBoxMinX="-100000" boundingBoxMinY="-100000" 

@@ -2,10 +2,10 @@
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://ruisystem.net/keystonecfg keystonecfg.xsd">
     <surface>
-        <point x="0.0" y="0.0" u="0.0" v="0.0"/>
-        <point x="800.0" y="0.0" u="800" v="0.0"/>
-        <point x="800.0" y="600.0" u="800" v="600"/>
-        <point x="0.0" y="600.0" u="0.0" v="600"/>
+        <point x="55.0" y="21.0" u="0.0" v="0.0"/>
+        <point x="703.0" y="-6.0" u="800" v="0.0"/>
+        <point x="691.0" y="583.0" u="800" v="600"/>
+        <point x="84.0" y="577.0" u="0.0" v="600"/>
     </surface>
-    <projection xScale="0.000000" yScale="0.000000" xPersp="0.000000" yPersp="0.000000" xFrustum="0.000000" yFrustum="0.000000" ySkew="0.000000"          />
+    <projection xScale="0.045574" yScale="-0.027169" xPersp="-0.037504" yPersp="0.035765" xFrustum="0.023335" yFrustum="0.025729" ySkew="-0.004377"          />
 </keystone>

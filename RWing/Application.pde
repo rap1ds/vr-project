@@ -233,19 +233,22 @@ if (true) {
   
   Wand leftWand = wand[2];
   Wand rightWand = wand[0];
-
+  
+  // uncomment for mouse dev testing
+  /*
   leftWand.x = 0;
   leftWand.y = 0;
-
   leftWand.z = rightWand.z;
-
+  */
+  
+  
+  float a = rightWand.y - leftWand.y;
   PVector wandDiff = new PVector(rightWand.x - leftWand.x, 
-                                 rightWand.y - leftWand.y, 
+                                 0, 
                                  rightWand.z - leftWand.z);
-  PVector wandDiffWithoutY = new PVector(wandDiff.x, 0, wandDiff.z);  
 
-  float angle = atan2(wandDiff.y, wandDiffWithoutY.mag()); 
-  // fix right side rotation to be opposite
+  float angle = atan2(a, wandDiff.mag()); 
+  // account for going over 90'
   if (wandDiff.x > 0) angle = -angle;
 
   if(!useKeyboard)

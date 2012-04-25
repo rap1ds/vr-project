@@ -336,8 +336,15 @@ public class Plane extends PhysicalObject {
     
     // Calculate "easing angle" with spring force
     
+    // Apply +- TWO_PI to currentRot if it's closer to desiredRot that way
+    if (abs(currentRot.x + TWO_PI - desiredRot.x) < abs(currentRot.x - desiredRot.x)) {
+      currentRot.x += TWO_PI;
+    } else if (abs(currentRot.x - TWO_PI - desiredRot.x) < abs(currentRot.x - desiredRot.x)) {
+      currentRot.x -= TWO_PI;
+    }
+
     // Calculate displacement force
-    PVector displacement = PVector.sub(currentRot, desiredRot);
+    PVector displacement = PVector.sub(currentRot, desiredRot);    
     PVector force = PVector.sub(PVector.mult(displacement, -stiffness), PVector.mult(rotVelocity, damping));
     
     // TODO: this shouldn't be hard-coded for 60 fps
@@ -368,6 +375,7 @@ public class Plane extends PhysicalObject {
   }
   
   public void setEuler(float rollAngle, float pitchAngle) {
+    //tänne constraint...
     desiredRot.y += pitchAngle;
     desiredRot.x = rollAngle;
   }
@@ -434,7 +442,7 @@ public class Checkpoint extends PhysicalObject {
     // Check if passed
     PVector p0 = new PVector(prevPosX, prevPosY, prevPosZ);
     PVector p1 = planePos;
-    if(intersects(p0, p1)) {
+    if(intersects(p0, p1) && index == raceLine.current) {
       raceLine.current++;
       return true;
     }

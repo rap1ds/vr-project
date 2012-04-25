@@ -281,12 +281,14 @@ if (true) {
    * between the parts II and III because it is very distractive if the discontinuity point is
    * between I and IV 
    */
+  /*
   if(angle > PI) {
     angle -= TWO_PI;
   }
-
+  */
   if(!useKeyboard)
     plane.setEuler(angle, wand[0].pitch);
+  //println(angle + "    " + wand[0].pitch);
 }
 
   // Control camera (player) location with aswd-keys or wand0

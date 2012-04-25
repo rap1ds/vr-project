@@ -229,6 +229,12 @@ public void myInteraction()
   //           lookAtX, lookAtY, lookAtZ, 0, 1, 0                         );
 
 if (true) {
+  
+  /*
+   * This is a naive implementation which assumes that the user is standing face towards the screen
+   * It's naive because we're doing x and y comparisons.
+   */
+  
   Wand leftWand = wand[2];
   Wand rightWand = wand[0];
 
@@ -244,16 +250,39 @@ if (true) {
   PVector wandsWithoutY = new PVector(wands.x, 0, wands.z);
   wandsWithoutY.normalize();
 
-  boolean counterClockwise = rightWand.y > leftWand.y;
-
   float angle = wands.dot(wandsWithoutY);
   angle = acos(angle);
-
-  if(counterClockwise) {
-    angle *= -1;
+  
+  // "Yksikkoympyra" Parts I, II, III and IV (counter-clockwise)
+  boolean partsIIIorIV = rightWand.y > leftWand.y;
+  boolean partsIIorIII = rightWand.x < leftWand.x;
+  if(partsIIIorIV) {
+    if(partsIIorIII) {
+      angle = PI + angle;
+      // print("Part III, angle: " + angle);
+    } else {
+      angle = TWO_PI - angle;
+      // print("Part IV, angle: " + angle);    
+    }
+    
+  } else {
+    if(partsIIorIII) {
+      angle = PI - angle;
+      // print("Part II, angle: " + angle);   
+    } else {
+      // print("Part I, angle: " + angle);
+    }
   }
-
-  print("Angle between: " + angle);
+  
+  /*
+   * There's a discountinuity when moving from angle 1 degree to angle 359 degree. 
+   * The plane is rotated 358 degrees, not 2 degrees. The following moves this discontinuity
+   * between the parts II and III because it is very distractive if the discontinuity point is
+   * between I and IV 
+   */
+  if(angle > PI) {
+    angle -= TWO_PI;
+  }
 
   plane.setEuler(angle, wand[0].pitch);
 }

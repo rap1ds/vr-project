@@ -278,7 +278,7 @@ public class Sky extends PhysicalObject {
 
 public class Plane extends PhysicalObject {
 
-  OBJModel model;
+  V3dsScene model;
   PVector baseDirection, direction, location;
   PMatrix3D transform;
   Quaternion rotation;
@@ -292,9 +292,9 @@ public class Plane extends PhysicalObject {
   PVector desiredRot = new PVector(0, 0);
   PVector rotVelocity = new PVector(0, 0);
   
-  public Plane(PApplet parent, String filename, String pathType, int drawMode) {
+  public Plane(PApplet applet, String filename) {
     super(0, 0, 0, 0, 0, 0, 0);
-    model = new OBJModel(parent, filename, pathType, drawMode);
+    model = new V3dsScene(applet, filename);
     baseDirection = new PVector(0, 0, 1);
     direction = new PVector(0, 0, 1);
     location = new PVector(0, 0, 0);
@@ -321,7 +321,11 @@ public class Plane extends PhysicalObject {
     transform.translate(0, 8, 0);
     
     pushMatrix();
+    
     applyMatrix(transform);
+    
+    // TODO: this is because the model has a different base than processing
+    scale(1, -1, -1);
     
     model.draw();
     

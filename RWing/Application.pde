@@ -16,7 +16,7 @@ float upZ = 0;
 
 PVector incrementalMove = new PVector(0, 0, 0);
 
-boolean useKeyboard = true;
+boolean useKeyboard = false;
 
 Plane plane;
 RaceLine raceLine;
@@ -75,7 +75,8 @@ public void mySetup()
   Sky sky = new Sky();
   ruis.addObject(sky);
 
-  plane = new Plane(this, "plane.obj", "relative", TRIANGLE_FAN);
+  plane = new Plane(this, "biplane.3DS");
+  
   raceLine = new RaceLine();
   raceLine.setup();
 
@@ -284,7 +285,8 @@ if (true) {
     angle -= TWO_PI;
   }
 
-  plane.setEuler(angle, wand[0].pitch);
+  if(!useKeyboard)
+    plane.setEuler(angle, wand[0].pitch);
 }
 
   // Control camera (player) location with aswd-keys or wand0

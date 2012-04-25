@@ -14,7 +14,8 @@ import net.ruisystem.view.*;
 import java.lang.reflect.*;
 import javax.vecmath.*;
 
-import saito.objloader.*;
+import mri.*;
+import mri.v3ds.*;
 
 public RUIS ruis;
 public ViewManager viewManager;

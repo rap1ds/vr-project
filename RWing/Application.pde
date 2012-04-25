@@ -55,6 +55,8 @@ public void mySetup()
   screenRelativeY );
   ruis.addObject(selSwitch);
 
+  
+
   // Here are some different ways to access different wands (controllers)
   // Setting initial locations
   wiimote[0].x = display[0].center.x;   // also wiimote0
@@ -81,6 +83,9 @@ public void mySetup()
   raceLine.setup();
 
   followCamera = new Camera(plane, new PVector(0.0f, -25.0f, -300.0f));
+  
+  timer = new Timer();
+  timer.start();
 }
 
 // This function is called for each view in the draw() loop.
@@ -115,24 +120,15 @@ public void myDraw(int viewID)
 
   plane.draw();
   raceLine.draw();
+  
+  float relativeScreenX;
+  float relativeScreenY;
+  
+  // viewManager.renderText(timer.formattedTime(), 0.1, 0.1, color(200,255,100), 2, viewID);
 
   // You can get world coordinates from any (x,y) point on the display
   // screen using screen2WorldX/Y/Z method. This is useful when drawing
   // HUD graphics.
-  pushMatrix();
-  float relativeScreenX = 0.1f;
-  float relativeScreenY = 0.1f;
-  int displayID = 0;
-  translate(screen2WorldX(relativeScreenX, relativeScreenY, displayID),
-  screen2WorldY(relativeScreenX, relativeScreenY, displayID),
-  screen2WorldZ(relativeScreenX, relativeScreenY, displayID) );
-  // The RUIScamera rotation needs to be negated so that the HUD
-  // object keeps facing the viewport
-  inverseCameraRotation();
-  fill(255, 0, 255); // Magenta box
-  float boxWidth = 0.1*display[0].getWidth();
-  box(boxWidth, 0.2*boxWidth, 0.2*boxWidth);
-  popMatrix();
 
   pushMatrix();
 
@@ -141,15 +137,6 @@ public void myDraw(int viewID)
   // to negate both the rotation AND translation of RUIScamera
   // transformation and draw items where the display screens are
   inverseCameraTransform();
-
-  // Draw a yellow box fixed in view HUD, near top right corner
-  pushMatrix();
-  translate(display[0].center.x + 0.4*display[0].getWidth(),
-            display[0].center.y - 0.4*display[0].getHeight(),
-            display[0].center.z                               );
-  fill(255, 255, 0);
-  box(0.2*boxWidth, boxWidth, 0.2*boxWidth);
-  popMatrix();
 
   // Example: Draw a wireframe box in front and above of the wand0
   noFill();

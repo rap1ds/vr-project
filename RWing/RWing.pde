@@ -29,6 +29,8 @@ String displayConfigFileName = "displayConfig.xml";
 String inputConfigFileName = "inputConfigDev.xml";
 String ruisConfigFileName = "ruisConfig.xml";
 
+Timer timer;
+
 public void setup()
 { 
   int viewCount = ViewManager.readViewCount(this, displayConfigFileName);
@@ -90,12 +92,20 @@ public void draw()
     
     /*---------------------------------------*/
     
+    // Mikko's comment, draw 2D here instead:
+    
+    hint(DISABLE_DEPTH_TEST);
+    viewManager.renderText(timer.formattedTime(), 0.1, 0.1, color(200,255,100), 2, viewID);
+    hint(ENABLE_DEPTH_TEST);
+    
     // Set 2D drawing mode - Essentially calls camera() and perspective()
     viewManager.prepareDrawingHUD(viewID);
     
     // Call your own 2D drawing functions here.
     // Keystone correction will not be applied on these drawings.
     /*---------------------------------------*/
+ 
+    // Mikko's comment... Doesn't seem to work. :( Don't to 2D drawing here.
  
     /*---------------------------------------*/
     

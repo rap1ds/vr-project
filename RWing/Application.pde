@@ -248,6 +248,7 @@ if (true) {
   wands.sub(new PVector(leftWand.x, leftWand.y, leftWand.z));
   wands.normalize();
 
+  
   PVector wandsWithoutY = new PVector(wands.x, 0, wands.z);
   wandsWithoutY.normalize();
 

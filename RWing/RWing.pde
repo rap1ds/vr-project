@@ -1,8 +1,3 @@
-/*
- RUIS prototyping environment
- @author Tuukka Takala
- @co-authors Yu Shen & Roberto Pugliese
-*/
 import processing.core.*;
 import processing.opengl.*;
 
@@ -28,8 +23,6 @@ int VIEW_HEIGHT = 640;
 String displayConfigFileName = "displayConfigDev.xml";
 String inputConfigFileName = "inputConfigDev.xml";
 String ruisConfigFileName = "ruisConfig.xml";
-
-Timer timer;
 
 public void setup()
 { 
@@ -92,11 +85,7 @@ public void draw()
     
     /*---------------------------------------*/
     
-    // Mikko's comment, draw 2D here instead:
-    
-    hint(DISABLE_DEPTH_TEST);
-    viewManager.renderText(timer.formattedTime(), 0.1, 0.1, color(200,255,100), 2, viewID);
-    hint(ENABLE_DEPTH_TEST);
+
     
     // Set 2D drawing mode - Essentially calls camera() and perspective()
     viewManager.prepareDrawingHUD(viewID);
@@ -105,8 +94,6 @@ public void draw()
     // Keystone correction will not be applied on these drawings.
     /*---------------------------------------*/
  
-    // Mikko's comment... Doesn't seem to work. :( Don't to 2D drawing here.
- 
     /*---------------------------------------*/
     
     viewManager.drawBlackOutsideKeystones(viewID);
@@ -114,3 +101,4 @@ public void draw()
   }
 
 }
+

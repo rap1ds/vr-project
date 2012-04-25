@@ -1,90 +1,31 @@
 /* The application logic is here */
 
-// Your global variables:
-float playerX =  0;
-float playerY =  0;
-float playerZ =  0;
-float lookAtX = 0;
-float lookAtY = 0;
-float lookAtZ = 0;
-float playerYaw   = 0;
-float playerPitch = 0;
-float playerRoll  = 0;
-float upX = 0;
-float upY = 1;
-float upZ = 0;
-
-PVector incrementalMove = new PVector(0, 0, 0);
-
 boolean useKeyboard = false;
 
 Plane plane;
 RaceLine raceLine;
-
-Camera followCamera;
+Camera camera;
+Timer timer;
 
 // This function is called only once in the setup() function
 public void mySetup()
 {
   viewManager.setDisplayGridDraw(false);
 
-  playerX = viewManager.getHeadX();
-  playerY = viewManager.getHeadY();
-  playerZ = viewManager.getHeadZ();
-
-  lookAtX = display[0].center.x;
-  lookAtY = display[0].center.y;
-  lookAtZ = display[0].center.z;
-
-  // Add a selectable, green switch on the view HUD, which can be interacted
-  // with, but is not affected by physics
-  float switchLenght = 0.15*display[0].getHeight();
-
-  PhysicalObject switchObj =
-    new PhysicalObject(switchLenght, switchLenght, switchLenght,
-  0 /* mass */, 0 /* locX */, 0 /* locY */,
-  0 /* locZ */, color(0, 255, 55),
-  PhysicalObject.IMMATERIAL_OBJECT         );
-
-  float screenRelativeX = 0.1f;
-  float screenRelativeY = 0.9f;
-  // SelectableSwitch contains interaction behavior, see its definition in
-  // MyObjects.pde
-  SelectableSwitch selSwitch = new SelectableSwitch(switchObj,
-  screenRelativeX,
-  screenRelativeY );
-  ruis.addObject(selSwitch);
-
-  
-
-  // Here are some different ways to access different wands (controllers)
-  // Setting initial locations
-  wiimote[0].x = display[0].center.x;   // also wiimote0
-  wiimote[0].y = display[0].center.y + 0.2*display[0].getHeight();
-  wiimote[0].z = display[0].center.z;
-  //skewand[0] == skewand0
-  // psmove[3] == psmove3  etc.
-  if (wand2 != null)
-  {
-    wand2.x = display[0].center.x - 0.3*display[0].getWidth();
-    wand2.y = display[0].center.y - 0.3*display[0].getHeight();
-    wand2.z = display[0].center.z;
-  }
-
-  Ground ground = new Ground();
-  ruis.addObject(ground);
-
-  Sky sky = new Sky();
-  ruis.addObject(sky);
+  ruis.addObject(new Ground());
+  ruis.addObject(new Sky());
 
   plane = new Plane(this, "biplane.3DS");
   
   raceLine = new RaceLine();
   raceLine.setup();
 
-  followCamera = new Camera(plane, new PVector(0.0f, -25.0f, -300.0f));
-  
+  camera = new Camera(plane, new PVector(0.0f, -25.0f, -300.0f));
   timer = new Timer();
+  
+  camera.location.set(viewManager.getHeadX(), viewManager.getHeadY(), viewManager.getHeadZ());
+  camera.target.set(display[0].center.x, display[0].center.y, display[0].center.z);
+  
   timer.start();
 }
 
@@ -92,21 +33,6 @@ public void mySetup()
 // Place only drawing function calls here, and NO interaction code!
 public void myDraw(int viewID)
 {
-  // Insert your draw code here
-
-  // In order to keep ruisCamera() view and/or keystone correction intact,
-
-  // use only drawing and camera matrix altering functions like pushMatrix(),
-  // translate(), rotateX/Y/Z(), scale(), applyMatrix(), box(), sphere() etc.
-  // DO NOT use projection matrix altering functions like perspective(),
-  // camera(), resetMatrix(), frustum(), beginCamera(), etc.
-
-  // There are functions like ruisCamera() and others that change the
-  // point of view in RUIS, but they have to be invoked in myInteraction()
-  // function. See examples there.
-
-  followCamera.update();
-
   // Lights
   lightSetup();
 
@@ -120,15 +46,6 @@ public void myDraw(int viewID)
 
   plane.draw();
   raceLine.draw();
-  
-  float relativeScreenX;
-  float relativeScreenY;
-  
-  // viewManager.renderText(timer.formattedTime(), 0.1, 0.1, color(200,255,100), 2, viewID);
-
-  // You can get world coordinates from any (x,y) point on the display
-  // screen using screen2WorldX/Y/Z method. This is useful when drawing
-  // HUD graphics.
 
   pushMatrix();
 
@@ -141,18 +58,22 @@ public void myDraw(int viewID)
   // Example: Draw a wireframe box in front and above of the wand0
   noFill();
   stroke(255);
+  
   pushMatrix();
-  translate(wand0.x,
-  wand0.y - 3, // Translate above
-  wand0.z - 3    ); // Translate in front
+  translate(wand0.x, wand0.y, wand0.z - 1);
   wand0.applyRotation();
   box(2);
   popMatrix();
+  
+  if (wand2 != null) {
+    pushMatrix();
+    translate(wand2.x, wand2.y, wand2.z - 1);
+    wand2.applyRotation();
+    box(2);
+    popMatrix();
+  }
 
   popMatrix();
-
-  relativeScreenX = 0.8f;
-  relativeScreenY = 0.95f;
 
   // Two examples below demonstrate how Kinect data points can be manipulated
   pushMatrix();
@@ -174,49 +95,29 @@ public void myDraw(int viewID)
     );
   popMatrix();
 
-  // Draws edge lines of all RigidBodies. Should only be used for
-  // debugging physics, because this function uses slow drawing methods
-  //ruis.drawRigidBodyEdges(RUIS.myWorld);
-
   stroke(color(255, 0, 0));
   line(wand[0].x, wand[0].y, wand[0].z, wand[2].x, wand[2].y, wand[2].z);
   noStroke();
+  
+  hint(DISABLE_DEPTH_TEST);
+  viewManager.renderText(timer.formattedTime(), 0.1, 0.1, color(200,255,100), 2, viewID);
+  hint(ENABLE_DEPTH_TEST);
 }
 
 // This function is called only once in the draw() loop
 public void myInteraction()
 {
-  // Insert your interaction code here
-
   // Head-tracking increases immersion and is useful for understanding the scale
   // of virtual objects. When physical limits of virtual environment setup are
   // reached (no more room to walk etc.), ruisCamera() methods can be used
   // to navigate through the virtual space. Combining camera controls to wand
   // buttons is a common approach.
 
-  // Use ruisCamera() method instead of camera(). ruisCamera() accepts the
-  // same arguments and behaves seemingly identically to camera() function.
-  // Example: \     Camera center      /  \    Point to look at    /  \  Up /
-  ruisCamera( playerX, playerY, playerZ, lookAtX, lookAtY, lookAtZ, upX, upY, upZ);
-  // In the above example the camera can get seemingly stuck in north and south
-  // poles of the lookAt point. Use an interactive up vector to avoid that.
+  camera.update();
 
-  // A simple first person point of view controlling scheme (uncomment to test)
-  //setCameraLocation(playerX, playerY, playerZ); // wasd-keys
-  //setCameraRotation(playerYaw, playerPitch, playerRoll); // z,x,c,v,b,n keys
-
-  // This is how you can match camera rotation to wand's rotation
-  //setCameraRotation(wand[0].yaw, wand[0].pitch, wand[0].roll);
-
-  // Rotate the camera automatically around a circle path
-  //float theta = millis()*0.0003f;
-  //float radius = 2*display[0].getWidth();
-  //ruisCamera(display[0].displayCenter.x + radius*sin(theta),
-  //           display[0].displayCenter.y,
-  //           display[0].displayCenter.z - radius*cos(theta),
-  //           lookAtX, lookAtY, lookAtZ, 0, 1, 0                         );
-
-if (true) {
+  ruisCamera(camera.location.x, camera.location.y, camera.location.z,
+             camera.target.x, camera.target.y, camera.target.z,
+             camera.up.x, camera.up.y, camera.up.z);
   
   Wand leftWand = wand[2];
   Wand rightWand = wand[0];
@@ -240,35 +141,9 @@ if (true) {
 
   if(!useKeyboard)
     plane.setEuler(angle, wand[0].pitch);
-}
 
-  // Control camera (player) location with aswd-keys or wand0
-  incrementalMove.set(0, 0, 0);
-  if ( wand[0].buttonO      || (keyPressed && key == 's' ))
-    incrementalMove.sub(getCameraForward());
-  if ( wand[0].buttonT      || (keyPressed && key == 'w' ))
-    incrementalMove.add(getCameraForward());
-  if ( wand[0].buttonSelect || (keyPressed && key == 'a' ))
-    incrementalMove.sub(getCameraRight());
-  if ( wand[0].buttonStart  || (keyPressed && key == 'd' ))
-    incrementalMove.add(getCameraRight());
-  if ( wand[0].buttonHome   || (keyPressed && key == 'q' ))
-    incrementalMove.sub(getCameraUp());
-  if ( wand[0].buttonMove   || (keyPressed && key == 'e' ))
-    incrementalMove.add(getCameraUp());
   if (keyPressed && key == 'p')
     wand[0].pitch = 1.0f;
-
-  float moveSpeed = 5;
-  // playerX += moveSpeed*incrementalMove.x;
-  // playerY += moveSpeed*incrementalMove.y;
-  // playerZ += moveSpeed*incrementalMove.z;
-
-  // If wand0 is a mouse, you can simulate the 3-axis rotation
-  /*if (wand0 instanceof MouseWand)
-    wand[0].simulateRotation(1.5f);
-  */
-
 
   // Set the tiny skeleton to lower left corner of the display
   skeleton0.setLocalTranslateOffset(new PVector(-.2*display[0].getWidth(),
@@ -281,67 +156,28 @@ if (true) {
 public void keyPressed()
 {
   // Location control for wand3 which is simulated with keyboard
-  /*if (key == CODED && wand3 != null)
-   {
-   if (keyCode == LEFT ) wand3.x -= 0.6;
-   if (keyCode == RIGHT) wand3.x += 0.6;
-   if (keyCode == UP   ) wand3.y -= 0.6;
-   if (keyCode == DOWN ) wand3.y += 0.6;
-   }*/
+  if(useKeyboard) {
+    
+    if (wand2 != null) {
+      if (key == 'a') wand3.x -= 0.6;
+      if (key == 'd') wand3.x += 0.6;
+      if (key == 'w') wand3.y -= 0.6;
+      if (key == 's') wand3.y += 0.6;
+    }
 
-  if (keyCode == LEFT ) plane.roll(0.05);
-  if (keyCode == RIGHT) plane.roll(-0.05);
-  if (keyCode == UP   ) plane.pitch(-0.05);
-  if (keyCode == DOWN ) plane.pitch(0.05);
-
-
-  // Rotational control for camera
-  if (key=='z') playerYaw   -= 0.08;
-  if (key=='x') playerYaw   += 0.08;
-  if (key=='b') playerPitch += 0.08;
-  if (key=='n') playerPitch -= 0.08;
-  if (key=='c') playerRoll  -= 0.08;
-  if (key=='v') playerRoll  += 0.08;
-
-  if (key == 'j') lookAtX -= 30;
-  if (key == 'l') lookAtX += 30;
-  if (key == 'o') lookAtY -= 30;
-  if (key == 'u') lookAtY += 30;
-  if (key == 'i') lookAtZ -= 30;
-  if (key == 'k') lookAtZ += 30;
+    if (keyCode == LEFT ) plane.roll(0.05);
+    if (keyCode == RIGHT) plane.roll(-0.05);
+    if (keyCode == UP   ) plane.pitch(-0.05);
+    if (keyCode == DOWN ) plane.pitch(0.05);
+  }
 
   // Simulate head tracking with keyboard. Notice the view distortion.
-  if (key == 'f') viewManager.incThreadedHeadX(-5);
+  /*if (key == 'f') viewManager.incThreadedHeadX(-5);
   if (key == 'h') viewManager.incThreadedHeadX(5);
   if (key == 'y') viewManager.incThreadedHeadY(-5);
   if (key == 'r') viewManager.incThreadedHeadY(5);
   if (key == 't') viewManager.incThreadedHeadZ(-5);
-  if (key == 'g') viewManager.incThreadedHeadZ(5);
-
-  // Enter/leave keystone calibration mode, where surfaces can be warped &
-  // moved
-  if (key == 'K')
-    viewManager.keystoneCalibrationModeSwitch();
-
-  if (key == ' ')
-  {
-    if (viewManager.isCalibrating())
-    {
-      // Save current view's keystones and move on to calibrate next
-      viewManager.saveKeystones();
-      viewManager.keystoneCalibrationViewSwitch();
-    }
-  }
-}
-
-public void mouseDragged()
-{
-  viewManager.dragKeystone();
-}
-
-public void mouseReleased()
-{
-  viewManager.setKeystoneSelected(false);
+  if (key == 'g') viewManager.incThreadedHeadZ(5);*/
 }
 
 public void lightSetup()
@@ -409,4 +245,5 @@ public void onStartPose(String pose, int userId)
   inputManager.ni.stopPoseDetection(userId);
   inputManager.ni.requestCalibrationSkeleton(userId, true);
 }
+
 

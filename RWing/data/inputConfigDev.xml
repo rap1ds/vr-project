@@ -7,9 +7,9 @@
              order in which they appear on this list, starting from 0. 	  -->
         <wands>            
             <Mouse       	     selection="buttonLeft"        />
-			<PSMove   psmoveID="0" selection="buttonTrigger"     />
-            
+            <PSMove   psmoveID="0" selection="buttonTrigger"     />
             <PSMove   psmoveID="1" selection="buttonTrigger"     />
+            
             <!-- Uncomment one of the skeleton rows if you want 	
 								 to use Kinect. -->
             <!--
@@ -25,7 +25,7 @@
         </wands>
 
         <headTracking enabled="false">
-            <Skeleton skeletonID="0"/>
+            <!-- <Skeleton skeletonID="0"/> -->
         </headTracking>
         <!-- Only first head tracker is taken into account in this 									    version -->
 

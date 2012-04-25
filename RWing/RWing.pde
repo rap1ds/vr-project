@@ -25,7 +25,7 @@ public InputManager inputManager;
 int VIEW_WIDTH  = 640;
 int VIEW_HEIGHT = 640;
 
-String displayConfigFileName = "displayConfig.xml";
+String displayConfigFileName = "displayConfigDev.xml";
 String inputConfigFileName = "inputConfigDev.xml";
 String ruisConfigFileName = "ruisConfig.xml";
 

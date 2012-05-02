@@ -227,7 +227,6 @@ public class Plane extends PhysicalObject {
     
     // update location
     location = PVector.add(location, PVector.mult(direction, speed + boost));
-    println(boost);
     
     // Calculate "easing angle" with spring force
     

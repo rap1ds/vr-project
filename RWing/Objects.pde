@@ -161,7 +161,11 @@ public class Plane extends PhysicalObject {
   PVector baseDirection, direction, location;
   PMatrix3D transform;
   Quaternion rotation;
-  float speed;
+  
+  static final float SPEED_BOOST_DURATION = 7000f;
+  static final int SPEED_BOOST_MULTIPLIER = 3;
+  float speed, speedBoost;
+  Timer speedBoostTimer = new Timer();
   
   float stiffness = 3000.0f;
   float damping = 1000.0f;
@@ -179,7 +183,7 @@ public class Plane extends PhysicalObject {
     location = new PVector(0, 0, 0);
     transform = new PMatrix3D();
     rotation = Quaternion.createIdentity();
-    speed = 0.5;
+    speed = 1f;
     
     // Turn the plane 180
     Quaternion yaw = Quaternion.createFromAxisAngle(new PVector(0, 1, 0), PI);
@@ -210,8 +214,20 @@ public class Plane extends PhysicalObject {
     
     popMatrix();
     
+    // Calculate the speed boost from passing a checkpoint (if any)
+    float boost = 0f;
+    if (speedBoost > 0) {
+      boost = easeOut(speedBoostTimer.getTimeMillis(), speedBoost,
+                      -speedBoost, SPEED_BOOST_DURATION);
+      if (boost < 0) {
+        speedBoost = 0;
+        boost = 0;
+      }
+    }
+    
     // update location
-    location = PVector.add(location, PVector.mult(direction, speed));
+    location = PVector.add(location, PVector.mult(direction, speed + boost));
+    println(boost);
     
     // Calculate "easing angle" with spring force
     
@@ -261,6 +277,20 @@ public class Plane extends PhysicalObject {
   
   public PVector getLocation() {
     return this.location;
+  }
+  
+  public void speedBoost() {
+    speedBoost = SPEED_BOOST_MULTIPLIER * speed;
+    speedBoostTimer.start();
+  }
+  
+  /* Cubic easing function (for the speed boost).
+  * Returns startValue at time = 0 and approaches startValue + change at time = duration
+  */
+  private float easeOut(float time, float startValue, float change, float duration) {
+    time /= duration;
+    time--;
+    return change * (pow(time, 3) + 1) + startValue;
   }
 }
 
@@ -323,6 +353,7 @@ public class Checkpoint extends PhysicalObject {
     PVector p1 = planePos;
     if(intersects(p0, p1) && index == raceLine.current) {
       raceLine.current++;
+      plane.speedBoost();
       return true;
     }
     

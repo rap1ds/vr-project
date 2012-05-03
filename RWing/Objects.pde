@@ -183,11 +183,14 @@ public class Plane extends PhysicalObject {
     location = new PVector(0, 0, 0);
     transform = new PMatrix3D();
     rotation = Quaternion.createIdentity();
-    speed = 1f;
     
     // Turn the plane 180
     Quaternion yaw = Quaternion.createFromAxisAngle(new PVector(0, 1, 0), PI);
     rotation = rotation.mult(yaw);
+  }
+  
+  public void startEngine() {
+    speed = 1f;
   }
 
   public void draw() {

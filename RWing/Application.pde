@@ -1,11 +1,12 @@
 /* The application logic is here */
 
-boolean useKeyboard = false;
+boolean useKeyboard = true;
 
 Plane plane;
 RaceLine raceLine;
 Camera camera;
 Timer timer;
+Countdown countdown;
 
 // This function is called only once in the setup() function
 public void mySetup()
@@ -16,23 +17,22 @@ public void mySetup()
   ruis.addObject(new Sky());
 
   plane = new Plane(this, "biplane.3DS");
-  
+
   raceLine = new RaceLine();
   raceLine.setup();
 
   camera = new Camera(plane, new PVector(0.0f, -25.0f, -300.0f));
   timer = new Timer();
-  
+  countdown = new Countdown();
+
   camera.location.set(viewManager.getHeadX(), viewManager.getHeadY(), viewManager.getHeadZ());
   camera.target.set(display[0].center.x, display[0].center.y, display[0].center.z);
-  
-  timer.start();
 }
 
 // This function is called for each view in the draw() loop.
 // Place only drawing function calls here, and NO interaction code!
 public void myDraw(int viewID)
-{
+{ 
   // Lights
   lightSetup();
 
@@ -58,13 +58,13 @@ public void myDraw(int viewID)
   // Example: Draw a wireframe box in front and above of the wand0
   noFill();
   stroke(255);
-  
+
   pushMatrix();
   translate(wand0.x, wand0.y, wand0.z - 1);
   wand0.applyRotation();
   box(2);
   popMatrix();
-  
+
   if (wand2 != null) {
     pushMatrix();
     translate(wand2.x, wand2.y, wand2.z - 1);
@@ -98,9 +98,32 @@ public void myDraw(int viewID)
   stroke(color(255, 0, 0));
   line(wand[0].x, wand[0].y, wand[0].z, wand[2].x, wand[2].y, wand[2].z);
   noStroke();
-  
+
   hint(DISABLE_DEPTH_TEST);
-  viewManager.renderText(timer.formattedTime(), 0.1, 0.1, color(200,255,100), 2, viewID);
+  viewManager.renderText(timer.formattedTime(), 0.1, 0.1, color(200, 255, 100), 2, viewID);
+
+  if (countdown.isDone() == false) {
+
+    float relX;
+
+    if (countdown.isStarted() == false) {
+      relX = 0.28; // Ready to start?
+    } 
+    else if (countdown.isFinished() == false) {
+      relX = 0.48; // 3, 2, 1
+    } 
+    else {
+      relX = 0.45; // Go!
+    }
+
+    viewManager.renderText(countdown.getCountdown(), relX, 0.5, color(200, 255, 100), 2, viewID);
+  }
+
+  if (countdown.isFinishedOnce()) {
+    timer.start();
+    plane.startEngine();
+  }
+
   hint(ENABLE_DEPTH_TEST);
 }
 
@@ -115,48 +138,48 @@ public void myInteraction()
 
   camera.update();
 
-  ruisCamera(camera.location.x, camera.location.y, camera.location.z,
-             camera.target.x, camera.target.y, camera.target.z,
-             camera.up.x, camera.up.y, camera.up.z);
-  
+  ruisCamera(camera.location.x, camera.location.y, camera.location.z, 
+  camera.target.x, camera.target.y, camera.target.z, 
+  camera.up.x, camera.up.y, camera.up.z);
+
   Wand leftWand = wand[0];
   Wand rightWand = wand[2];
-  
+
   // uncomment for mouse dev testing
   /*
   leftWand.x = 0;
-  leftWand.y = 0;
-  leftWand.z = rightWand.z;
-  */
-  
+   leftWand.y = 0;
+   leftWand.z = rightWand.z;
+   */
+
   PVector wandDiff = new PVector(rightWand.x - leftWand.x, 
-                                 0, 
-                                 rightWand.z - leftWand.z);
-                                 
+  0, 
+  rightWand.z - leftWand.z);
+
   float a = rightWand.y - leftWand.y;
   float b = wandDiff.mag();
 
   float angle = atan2(a, b);
-  
+
   // account for going over 90'
   if (wandDiff.x > 0) angle = -angle;
 
-  if(!useKeyboard)
+  if (!useKeyboard)
     plane.setEuler(angle, wand[0].pitch);
 
   // Set the tiny skeleton to lower left corner of the display
-  skeleton0.setLocalTranslateOffset(new PVector(-.2*display[0].getWidth(),
-                                                .8*ruis.getStaticFloorY(), 0));
+  skeleton0.setLocalTranslateOffset(new PVector(-.2*display[0].getWidth(), 
+  .8*ruis.getStaticFloorY(), 0));
   // WorldTranslateOffset is not affected by LocalTranslateOffset
   skeleton0.setWorldTranslateOffset(new PVector(0, 0, 10));
 }
 
 // Keyboard user interface
 public void keyPressed()
-{
+{ 
   // Location control for wand3 which is simulated with keyboard
-  if(useKeyboard) {
-    
+  if (useKeyboard) {
+
     if (wand2 != null) {
       if (key == 'a') wand3.x -= 0.6;
       if (key == 'd') wand3.x += 0.6;
@@ -168,18 +191,19 @@ public void keyPressed()
     if (keyCode == RIGHT) plane.roll(-0.05);
     if (keyCode == UP   ) plane.pitch(-0.05);
     if (keyCode == DOWN ) plane.pitch(0.05);
-    
+    if (keyCode == 32 ) countdown.start(); // Space
+
     if (key == 'p')
       wand[0].pitch = 1.0f;
   }
 
   // Simulate head tracking with keyboard. Notice the view distortion.
   /*if (key == 'f') viewManager.incThreadedHeadX(-5);
-  if (key == 'h') viewManager.incThreadedHeadX(5);
-  if (key == 'y') viewManager.incThreadedHeadY(-5);
-  if (key == 'r') viewManager.incThreadedHeadY(5);
-  if (key == 't') viewManager.incThreadedHeadZ(-5);
-  if (key == 'g') viewManager.incThreadedHeadZ(5);*/
+   if (key == 'h') viewManager.incThreadedHeadX(5);
+   if (key == 'y') viewManager.incThreadedHeadY(-5);
+   if (key == 'r') viewManager.incThreadedHeadY(5);
+   if (key == 't') viewManager.incThreadedHeadZ(-5);
+   if (key == 'g') viewManager.incThreadedHeadZ(5);*/
 }
 
 public void lightSetup()
@@ -190,10 +214,10 @@ public void lightSetup()
   lightSpecular(255, 255, 255);
 
   // White point light near the point of view (ruisCamera)
-  pointLight(255, 255, 255,
-             getCameraLocation().x - 100*getCameraForward().x,
-             getCameraLocation().y - 0.3*display[0].getHeight(),
-             getCameraLocation().z - 100*getCameraForward().z    );
+  pointLight(255, 255, 255, 
+  getCameraLocation().x - 100*getCameraForward().x, 
+  getCameraLocation().y - 0.3*display[0].getHeight(), 
+  getCameraLocation().z - 100*getCameraForward().z    );
   lightSpecular(0, 0, 0);
 
   pointLight(110, 110, 110, // All gray
@@ -247,5 +271,4 @@ public void onStartPose(String pose, int userId)
   inputManager.ni.stopPoseDetection(userId);
   inputManager.ni.requestCalibrationSkeleton(userId, true);
 }
-
 

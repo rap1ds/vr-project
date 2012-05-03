@@ -161,6 +161,7 @@ public class Plane extends PhysicalObject {
   PVector baseDirection, direction, location;
   PMatrix3D transform;
   Quaternion rotation;
+  AudioPlayer sound;
   
   static final float SPEED_BOOST_DURATION = 7000f;
   static final int SPEED_BOOST_MULTIPLIER = 3;
@@ -184,6 +185,8 @@ public class Plane extends PhysicalObject {
     transform = new PMatrix3D();
     rotation = Quaternion.createIdentity();
     
+    sound = minim.loadFile("plane.wav");
+    
     // Turn the plane 180
     Quaternion yaw = Quaternion.createFromAxisAngle(new PVector(0, 1, 0), PI);
     rotation = rotation.mult(yaw);
@@ -191,6 +194,7 @@ public class Plane extends PhysicalObject {
   
   public void startEngine() {
     speed = 1f;
+    sound.loop();
   }
 
   public void draw() {
@@ -293,6 +297,11 @@ public class Plane extends PhysicalObject {
     time /= duration;
     time--;
     return change * (pow(time, 3) + 1) + startValue;
+  }
+  
+  // Close the audio resource
+  public void cleanUp() {
+    sound.close();
   }
 }
 

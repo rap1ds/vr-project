@@ -12,6 +12,8 @@ import javax.vecmath.*;
 import mri.*;
 import mri.v3ds.*;
 
+import ddf.minim.*;
+
 public RUIS ruis;
 public ViewManager viewManager;
 public InputManager inputManager;
@@ -100,5 +102,12 @@ public void draw()
     popMatrix();
   }
 
+}
+
+// Close all audio resources when the program exits
+void stop() {
+  plane.cleanUp();
+  minim.stop();
+  super.stop();
 }
 

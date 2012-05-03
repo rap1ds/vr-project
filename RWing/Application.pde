@@ -2,6 +2,8 @@
 
 boolean useKeyboard = true;
 
+Minim minim;
+
 Plane plane;
 RaceLine raceLine;
 Camera camera;
@@ -12,6 +14,8 @@ Countdown countdown;
 public void mySetup()
 {
   viewManager.setDisplayGridDraw(false);
+  
+  minim = new Minim(this);
 
   ruis.addObject(new Ground());
   ruis.addObject(new Sky());
@@ -271,4 +275,3 @@ public void onStartPose(String pose, int userId)
   inputManager.ni.stopPoseDetection(userId);
   inputManager.ni.requestCalibrationSkeleton(userId, true);
 }
-

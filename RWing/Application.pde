@@ -195,11 +195,13 @@ public void keyPressed()
     if (keyCode == RIGHT) plane.roll(-0.05);
     if (keyCode == UP   ) plane.pitch(-0.05);
     if (keyCode == DOWN ) plane.pitch(0.05);
-    if (keyCode == 32 ) countdown.start(); // Space
 
     if (key == 'p')
       wand[0].pitch = 1.0f;
   }
+  
+  if (keyCode == 32 ) countdown.start(); // Space
+  // Mikä ois hyvä nappi wandille?
 
   // Simulate head tracking with keyboard. Notice the view distortion.
   /*if (key == 'f') viewManager.incThreadedHeadX(-5);

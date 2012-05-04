@@ -20,15 +20,18 @@ import com.bulletphysics.linearmath.Transform;
 public class Ground extends PhysicalObject {
 
   PImage groundTexture;
+  
+  int size;
 
   public Ground() {
-    this(2000);
+    this(10000);
   }
 
   public Ground(int groundSize) {
     super(groundSize, 2, groundSize, 1, 0, ruis.getStaticFloorY(), 0, color(200), PhysicalObject.IMMATERIAL_OBJECT);
 
-    this.groundTexture = loadImage("ground.jpg");
+    this.size = groundSize;
+    this.groundTexture = loadImage("ground2.jpg");
   }
 
   public void renderAtOrigin() {
@@ -70,17 +73,28 @@ public class Ground extends PhysicalObject {
 
     // bottom
     normal(0, -1, 0);
-    vertex(-1, -1, 1, 0, 1);
-    vertex( 1, -1, 1, 1, 1);
-    vertex( 1, -1, -1, 1, 0);
-    vertex(-1, -1, -1, 0, 0);
+    vertex(-1, 1, 1, 0, 1);
+    vertex( 1, 1, 1, 1, 1);
+    vertex( 1, 1, -1, 1, 0);
+    vertex(-1, 1, -1, 0, 0);
 
     // top
     normal(0, 1, 0);
-    vertex(-1, 1, -1, 0, 1);
-    vertex( 1, 1, -1, 1, 1);
-    vertex( 1, 1, 1, 1, 0);
-    vertex(-1, 1, 1, 0, 0);
+    int num = this.size / 2000;
+    int x = 0;
+    int z = 0;
+    int start = -1;
+    float len = 2f / num;
+
+    normal(0, -1, 0);    
+    for(int ix = 0; ix < num; ix++) {
+      for(int iz = 0; iz < num; iz++) {
+        vertex(start + ix * len, -1, start + iz * len, 0, 1);
+        vertex(start + (ix + 1) * len, -1, start + iz * len, 1, 1);
+        vertex(start + (ix + 1) * len, -1, start + (iz + 1) * len, 1, 0);
+        vertex(start + ix * len, -1, start + (iz + 1) * len, 0, 0);
+      }
+    }
 
     endShape();
 

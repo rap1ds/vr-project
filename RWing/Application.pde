@@ -183,7 +183,7 @@ public void myInteraction()
 public void keyPressed()
 { 
   // Location control for wand3 which is simulated with keyboard
-  if (useKeyboard) {
+  if (useKeyboard && countdown.isFinished()) {
 
     if (wand2 != null) {
       if (key == 'a') wand3.x -= 0.6;

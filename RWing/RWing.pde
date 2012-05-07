@@ -13,6 +13,7 @@ import mri.*;
 import mri.v3ds.*;
 
 import ddf.minim.*;
+import ddf.minim.effects.*;
 
 public RUIS ruis;
 public ViewManager viewManager;

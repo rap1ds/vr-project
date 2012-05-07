@@ -176,6 +176,7 @@ public class Plane extends PhysicalObject {
   PMatrix3D transform;
   Quaternion rotation;
   AudioPlayer sound;
+  LowPassFS lpfilter;
   
   static final float SPEED_BOOST_DURATION = 7000f;
   static final int SPEED_BOOST_MULTIPLIER = 3;
@@ -201,7 +202,10 @@ public class Plane extends PhysicalObject {
     transform = new PMatrix3D();
     rotation = Quaternion.createIdentity();
     
-    sound = minim.loadFile("plane.wav");
+
+    sound = minim.loadFile("plane.wav", 2048);
+    lpfilter = new LowPassFS(300, sound.sampleRate());
+    sound.addEffect(lpfilter);
     
     // Turn the plane 180
     Quaternion yaw = Quaternion.createFromAxisAngle(new PVector(0, 1, 0), PI);
@@ -235,6 +239,9 @@ public class Plane extends PhysicalObject {
     // update location
     location = PVector.add(location, PVector.mult(direction, speed + calculateSpeedBoost()));
     
+    // update sound frequency based on speed
+    lpfilter.setFreq(100 + min(this.getThrustAmount(), 100) * 6);
+        
     // Calculate "easing angle" with spring force
     
     // Apply +- PI to currentRot if it's closer to desiredRot that way, fixes bump at +-PI/2
@@ -306,11 +313,16 @@ public class Plane extends PhysicalObject {
   in percentages, including the speed boost. The base thrust
   is mapped to the range 0...100, and with the speed boost the
   range becomes 0...100*(SPEED_BOOST_MULTIPLIER+1) */
+
   public String getThrust() {
-    float thrust = map(speed + calculateSpeedBoost(),
-                   0f, MAX_SPEED * (SPEED_BOOST_MULTIPLIER + 1),
-                   0f, 100f * (SPEED_BOOST_MULTIPLIER + 1));
+    float thrust = this.getThrustAmount();
     return "Thrust: " + (int)thrust + "%";
+  }
+  
+  private float getThrustAmount() {
+    return map(speed + calculateSpeedBoost(),
+               0f, MAX_SPEED * (SPEED_BOOST_MULTIPLIER + 1),
+               0f, 100f * (SPEED_BOOST_MULTIPLIER + 1));
   }
   
   public void speedBoost() {

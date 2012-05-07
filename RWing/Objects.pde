@@ -179,6 +179,8 @@ public class Plane extends PhysicalObject {
   
   static final float SPEED_BOOST_DURATION = 7000f;
   static final int SPEED_BOOST_MULTIPLIER = 3;
+  static final float MIN_SPEED = 0.5;
+  static final float MAX_SPEED = 3f;
   float speed, speedBoost;
   Timer speedBoostTimer = new Timer();
   
@@ -204,11 +206,6 @@ public class Plane extends PhysicalObject {
     // Turn the plane 180
     Quaternion yaw = Quaternion.createFromAxisAngle(new PVector(0, 1, 0), PI);
     rotation = rotation.mult(yaw);
-  }
-  
-  public void startEngine() {
-    speed = 1f;
-    sound.loop();
   }
 
   public void draw() {
@@ -275,6 +272,23 @@ public class Plane extends PhysicalObject {
     Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), applyRot.x);
     Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), applyRot.y);
     rotation = rotation.mult(roll.mult(pitch));
+  }
+  
+  public void startEngine() {
+    speed = 1f;
+    sound.loop();
+  }
+  
+  public void accelerate() {
+    if (speed < MAX_SPEED) {
+      speed = min(speed + 0.03, MAX_SPEED);
+    }
+  }
+
+  public void decelerate() {
+    if (speed > MIN_SPEED) {
+      speed = max(speed - 0.03, MIN_SPEED);
+    }
   }
 
   public void roll(float angle) {

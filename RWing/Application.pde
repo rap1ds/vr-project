@@ -9,6 +9,11 @@ RaceLine raceLine;
 Camera camera;
 Timer timer;
 Countdown countdown;
+int enemyCount = 10;
+EnemyPlane[] enemyPlanes = new EnemyPlane[enemyCount];
+PVector firePos;
+PVector enemyPlanePos;
+PVector fireRay;
 
 // This function is called only once in the setup() function
 public void mySetup()
@@ -21,6 +26,10 @@ public void mySetup()
   ruis.addObject(new Sky());
 
   plane = new Plane(this, "biplane.3DS");
+  
+  for(int i = 0; i < enemyCount; i++) {
+    enemyPlanes[i] = new EnemyPlane(this, "biplane.3DS");
+  }
 
   raceLine = new RaceLine();
   raceLine.setup();
@@ -50,6 +59,14 @@ public void myDraw(int viewID)
 
   plane.draw();
   raceLine.draw();
+  
+  for(int i = 0; i < enemyCount; i++) {
+    enemyPlanes[i].draw();
+  }
+  
+  if(fireRay != null) {
+    line(firePos.x, firePos.y, firePos.z, fireRay.x, fireRay.y, fireRay.z);
+  }
 
   pushMatrix();
 
@@ -127,6 +144,10 @@ public void myDraw(int viewID)
   if (countdown.isFinishedOnce()) {
     timer.start();
     plane.startEngine();
+    
+    for(int i = 0; i < enemyCount; i++) {
+      enemyPlanes[i].startEngine();
+    }
   }
 
   hint(ENABLE_DEPTH_TEST);
@@ -149,6 +170,7 @@ public void myInteraction()
 
   Wand leftWand = wand[0];
   Wand rightWand = wand[2];
+  Wand gunWand = wand[0];
 
   // uncomment for mouse dev testing
   /*
@@ -169,8 +191,10 @@ public void myInteraction()
   // account for going over 90'
   if (wandDiff.x > 0) angle = -angle;
 
-  if (!useKeyboard)
+  if (!useKeyboard) {
     plane.setEuler(angle, wand[0].pitch);
+  }
+    
 
   // Set the tiny skeleton to lower left corner of the display
   skeleton0.setLocalTranslateOffset(new PVector(-.2*display[0].getWidth(), 
@@ -205,6 +229,28 @@ public void keyPressed()
   
   if (keyCode == 32 ) countdown.start(); // Space
   // Mikä ois hyvä nappi wandille?
+  
+  if(key == 'f') {
+    /*
+    EnemyPlane enemy = enemyPlanes[0];
+    firePos = plane.getLocation();
+    enemyPlanePos = enemy.getCenter();
+    
+    fireRay = PVector.sub(enemyPlanePos, firePos);
+    fireRay = PVector.add(enemyPlanePos, fireRay);
+    
+    println("Plane: " + firePos.x + ", " + firePos.y + ", " + firePos.z + "   Enemy: " + enemyPlanePos.x + ", " + enemyPlanePos.y + ", " + enemyPlanePos.z + "   Fire ray: "  + fireRay.x + ", " + fireRay.y + ", " + fireRay.z);
+    
+    // fireRay.mult(10);
+    
+    boolean hit = enemy.intersects(firePos, fireRay);
+    
+    if(hit) {
+      print("HIIIITTTT!!!!");
+    }
+    */
+    
+  }
   
   // TODO: Kaasu ja jarru wandin kanssa
   //if (???) plane.accelerate();

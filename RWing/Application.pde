@@ -105,6 +105,7 @@ public void myDraw(int viewID)
 
   hint(DISABLE_DEPTH_TEST);
   viewManager.renderText(timer.formattedTime(), 0.1, 0.1, color(200, 255, 100), 2, viewID);
+  viewManager.renderText(plane.getThrust(), 0.7, 0.05, color(200, 255, 100), 1.5, viewID);
 
   if (countdown.isDone() == false) {
 

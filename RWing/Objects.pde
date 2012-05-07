@@ -232,19 +232,8 @@ public class Plane extends PhysicalObject {
     
     popMatrix();
     
-    // Calculate the speed boost from passing a checkpoint (if any)
-    float boost = 0f;
-    if (speedBoost > 0) {
-      boost = easeOut(speedBoostTimer.getTimeMillis(), speedBoost,
-                      -speedBoost, SPEED_BOOST_DURATION);
-      if (boost < 0) {
-        speedBoost = 0;
-        boost = 0;
-      }
-    }
-    
     // update location
-    location = PVector.add(location, PVector.mult(direction, speed + boost));
+    location = PVector.add(location, PVector.mult(direction, speed + calculateSpeedBoost()));
     
     // Calculate "easing angle" with spring force
     
@@ -313,9 +302,30 @@ public class Plane extends PhysicalObject {
     return this.location;
   }
   
+  /* Returns a String that tells the current amount of thrust
+  in percentages, including the speed boost. The base thrust
+  is mapped to the range 0...100, and with the speed boost the
+  range becomes 0...100*(SPEED_BOOST_MULTIPLIER+1) */
+  public String getThrust() {
+    float thrust = map(speed + calculateSpeedBoost(),
+                   0f, MAX_SPEED * (SPEED_BOOST_MULTIPLIER + 1),
+                   0f, 100f * (SPEED_BOOST_MULTIPLIER + 1));
+    return "Thrust: " + (int)thrust + "%";
+  }
+  
   public void speedBoost() {
     speedBoost = SPEED_BOOST_MULTIPLIER * speed;
     speedBoostTimer.start();
+  }
+  
+  private float calculateSpeedBoost() {
+    float time = speedBoostTimer.getTimeMillis();
+    if (time > 0f && time <= SPEED_BOOST_DURATION) {
+      return easeOut(time, speedBoost, -speedBoost, SPEED_BOOST_DURATION);
+    } else if (time > SPEED_BOOST_DURATION) {
+      speedBoostTimer.reset();
+    }
+    return 0f;
   }
   
   /* Cubic easing function (for the speed boost).

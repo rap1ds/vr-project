@@ -1,76 +1,61 @@
 import java.util.Vector;
 import javax.media.opengl.GL;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import com.sun.opengl.util.BufferUtil;
 import com.sun.opengl.util.texture.*;
-
-class ms_vector2
-{
- float x, y;
- 
- // constructor
- ms_vector2()
- {
-   this.x = 0;
-   this.y = 0;
- }
- 
- ms_vector2( float _x, float _y)
- {
-   this.x = _x;
-   this.y = _y;
- }
-}
  
 // buffer converters
-FloatBuffer PVector_to_FloatBuffer( Vector<PVector> _vector )
+FloatBuffer toFloatBuffer(Vector<PVector> data, int n)
 {
- FloatBuffer a  = BufferUtil.newFloatBuffer( _vector.size() * 3 );      
+  FloatBuffer a  = BufferUtil.newFloatBuffer(data.size() * n);
  
- for( int i = 0; i < _vector.size(); i++ )
- {
-   PVector v = (PVector) _vector.elementAt( i );
-   a.put( v.x );
-   a.put( v.y );
-   a.put( v.z );
- }
- a.rewind();
- return a;
+  for (int i = 0; i < data.size(); i++)
+  {
+    PVector v = data.elementAt(i);
+    if(n >= 1) a.put(v.x);
+    if(n >= 2) a.put(v.y);
+    if(n >= 3) a.put(v.z);
+    //if(n >= 4) a.put(v.w); // PVEctor only contains 3 elements
+  }
+  a.rewind();
+  return a;
 }
 
-FloatBuffer PVector_to_FloatBuffer2( Vector<PVector> _vector )
+IntBuffer toIntBuffer(Vector<Integer> data)
 {
- FloatBuffer a  = BufferUtil.newFloatBuffer( _vector.size() * 2 );      
- 
- for( int i = 0; i < _vector.size(); i++ )
- {
-   PVector v = (PVector) _vector.elementAt( i );
-   a.put( v.x );
-   a.put( v.y );
- }
- a.rewind();
- return a;
-}
-        
-public class Terrain extends PhysicalObject {
-
-  Texture tex;
-  int size;
+  IntBuffer a = BufferUtil.newIntBuffer(data.size());
   
+  for (int i = 0; i < data.size(); i++)
+  {
+    a.put(data.elementAt(i));
+  }
+  a.rewind();
+  return a;
+}
+
+public class Terrain extends PhysicalObject {
+  
+  // Different values to play around with that affect the fractal terrain generator behavior.
+  // Final results also depend on constructor parameter groundSize.
+  int size = 129; // Side length for the mesh (number of iterations). NOTE: must be 2^n + 1
+  float bumpiness = 100.0;  // Initial height deviation bounds.
+  float roughness = 0.9f;   // Factor by which to reduce bumpiness with each iteration (between 0 and 1).
+  
+  Texture tex;
+    
   PGraphicsOpenGL pgl;
   GL gl;
   
-  int[] vboID = new int[2];
-  int dataLength;
+  int[] vboID = new int[3];
+  int numElements;
 
   public Terrain() {
-    this(100);
+    this(10000);
   }
 
   public Terrain(int groundSize) {
-    super(groundSize, 2, groundSize, 1, 0, ruis.getStaticFloorY(), 0, color(200), PhysicalObject.IMMATERIAL_OBJECT);
-
-    this.size = groundSize;
+    super(groundSize, 1, groundSize, 1, 0, ruis.getStaticFloorY(), 0, color(200), PhysicalObject.IMMATERIAL_OBJECT);
     
     try {
       // Load texture
@@ -93,39 +78,35 @@ public class Terrain extends PhysicalObject {
   private void createAndFillVBO() {
     
     // Guesstimate for nice-looking texture resolution
-    float texScale = this.size / 100.0f;
+    float texScale = min(super.width, super.depth) / 100.0f;
     
     // Build vertex and texture coordinate data
-    Vector<PVector> vertexData = new Vector<PVector>();
-    Vector<PVector> texcoordData = new Vector<PVector>();
+    Vector<PVector> vData = new Vector<PVector>();
+    Vector<PVector> tData = new Vector<PVector>();
+    Vector<Integer> iData = new Vector<Integer>();
     
-    vertexData.addElement(new PVector(-1, 0, 1));
-    texcoordData.addElement(new PVector(0, 0));
-    
-    vertexData.addElement(new PVector(1, 0, 1));
-    texcoordData.addElement(new PVector(texScale, 0));
-    
-    vertexData.addElement(new PVector(1, 0, -1));
-    texcoordData.addElement(new PVector(texScale, texScale));
-    
-    vertexData.addElement(new PVector(-1, 0, -1));
-    texcoordData.addElement(new PVector(0, texScale));
+    //buildFlatData(texScale, vData, tData, iData);
+    buildFractalData(this.size, texScale, vData, tData, iData);
     
     // Save our data length
-    dataLength = vertexData.size();
+    numElements = iData.size();
     
     pgl.beginGL();
     
     // Generate VBOs
-    gl.glGenBuffers(2, vboID, 0);
+    gl.glGenBuffers(3, vboID, 0);
     
     // Bind and upload data for vertex coordinates
     gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboID[0]);
-    gl.glBufferData(GL.GL_ARRAY_BUFFER, dataLength * 3 * BufferUtil.SIZEOF_FLOAT, PVector_to_FloatBuffer(vertexData), GL.GL_STATIC_DRAW);
+    gl.glBufferData(GL.GL_ARRAY_BUFFER, vData.size() * 3 * BufferUtil.SIZEOF_FLOAT, toFloatBuffer(vData, 3), GL.GL_STATIC_DRAW);
     
     // Bind and upload data for texture coordinates
     gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboID[1]);
-    gl.glBufferData(GL.GL_ARRAY_BUFFER, dataLength * 2 * BufferUtil.SIZEOF_FLOAT, PVector_to_FloatBuffer2(texcoordData), GL.GL_STATIC_DRAW);
+    gl.glBufferData(GL.GL_ARRAY_BUFFER, tData.size() * 2 * BufferUtil.SIZEOF_FLOAT, toFloatBuffer(tData, 2), GL.GL_STATIC_DRAW);
+    
+    // Bind element array
+    gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, vboID[2]);
+    gl.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, iData.size() * BufferUtil.SIZEOF_INT, toIntBuffer(iData), GL.GL_STATIC_DRAW);
     
     // Unbind buffer
     gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
@@ -151,6 +132,7 @@ public class Terrain extends PhysicalObject {
     // Enable vertex array and texture coordinate client states
     gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
     gl.glEnableClientState(GL.GL_TEXTURE_COORD_ARRAY);
+    gl.glEnableClientState(GL.GL_INDEX_ARRAY);
     
     // Bind our vertex data buffer and set vertex pointer
     gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboID[0]);
@@ -160,13 +142,17 @@ public class Terrain extends PhysicalObject {
     gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboID[1]);
     gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, 0);
     
+    // Bind index buffer
+    gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, vboID[2]);
+    
     // Draw quad primitives
-    gl.glDrawArrays(GL.GL_QUADS, 0, dataLength);
+    gl.glDrawElements(GL.GL_TRIANGLES, numElements, GL.GL_UNSIGNED_INT, 0);
     
     // Unbind buffers
     gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
 
     // Disable our client states
+    gl.glDisableClientState(GL.GL_INDEX_ARRAY);
     gl.glDisableClientState(GL.GL_TEXTURE_COORD_ARRAY);    
     gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
     
@@ -177,5 +163,134 @@ public class Terrain extends PhysicalObject {
     pgl.endGL();
 
     popMatrix();
+  }
+  
+  private void buildFlatData(float texScale, Vector<PVector> vData, Vector<PVector> tData, Vector<Integer> iData)
+  {
+    int i = 0;
+    
+    vData.addElement(new PVector(-1, 0, 1));
+    tData.addElement(new PVector(0, 0));
+    
+    vData.addElement(new PVector(1, 0, 1));
+    tData.addElement(new PVector(texScale, 0));
+    
+    vData.addElement(new PVector(1, 0, -1));
+    tData.addElement(new PVector(texScale, texScale));
+    
+    vData.addElement(new PVector(-1, 0, -1));
+    tData.addElement(new PVector(0, texScale));
+    
+    iData.addAll(Arrays.asList(new Integer[] { 0,1,2, 0,2,3 }));
+  }
+  
+  private void buildFractalData(int size, float texScale, Vector<PVector> vData, Vector<PVector> tData, Vector<Integer> iData)
+  {
+    vData.clear();
+    tData.clear();
+    iData.clear();
+    
+    float dx = 1.0f/size;
+    float dz = 1.0f/size;
+    
+    // intialize data
+    float data[] = new float[size*size];
+    
+    for (int i = 0; i < size; i++)
+      for (int j = 0; j < size; j++)
+        data[j*size+i] = 0.0f;
+        
+    // random offset bounds
+    float h = this.bumpiness;
+    float f = this.roughness;
+
+    // Generate height values by Square Diamond algorithm (based on Daniel Beard's implementation)
+    for (int sideLength = size-1; sideLength >= 2; sideLength /= 2, h *= f)	{
+    
+      int halfSide = sideLength/2;
+      
+      //generate new square values
+      for (int x = 0; x < size-1; x += sideLength) {
+        for (int y = 0; y < size-1; y += sideLength) {
+        
+          // Calculate average of 4 corners
+          float avg = (data[y*size + x] +
+            data[y*size + x+sideLength]	+
+            data[(y+sideLength)*size + x] +
+            data[(y+sideLength)*size + x+sideLength]) / 4;
+          
+          // Set center location as average + random offset
+          float offset = random(-h, h);
+          data[(y+halfSide)*size + x+halfSide] = avg + offset;
+        }
+      }
+      
+      // Generate the diamond values
+      for (int x = 0; x < size-1; x += halfSide) {
+        for (int y = (x+halfSide) % sideLength; y < size-1; y += sideLength) {
+
+          // Calculate average for diamond
+          float avg = (data[y*size + (x-halfSide+size) % size] +
+            data[y*size + (x+halfSide) % size] +
+            data[((y+halfSide) % size)*size + x] +
+            data[((y-halfSide+size) % size)*size + x]) / 4;
+
+          // random offset for average value
+          float offset = random(-h, h);
+          float value = avg + offset;
+
+          // Set value for diamond center
+          data[y*size + x] = value;
+
+          // Wrap around
+          if (x == 0)
+            data[y*size + size-1] = value;
+          if (y == 0)
+            data[(size-1)*size + x] = value;
+        }
+      }
+    }
+    
+    // Generate vertices and indices based on height map
+    for (int j = 0; j < size; j++)
+    {
+      for (int i = 0; i < size; i++)
+      {
+        // calculate vertex coordinates
+        float x = i*dx-0.5f;
+        float z = j*dz-0.5f;
+        float y = data[j*size + i];
+
+        PVector position = new PVector(x, y, z);
+        PVector normal = new PVector(0, 1, 0);
+        PVector texCoord = new PVector(x * texScale, z * texScale);
+        
+        //Mesh::vertex v = { glm::vec3(x, y, z), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(x, z) * textureSize, color };
+
+        if (i < size-1 && j < size-1)
+        {
+          // Calculate normal
+          PVector v1 = new PVector(x, y, z);
+          PVector v2 = new PVector(i*dx, data[(j+1)*size + i], (j+1)*dz);
+          PVector v3 = new PVector((i+1)*dx, data[j*size + (i+1)], j*dz);
+
+          normal = PVector.sub(v2, v1).cross(PVector.sub(v3, v1));
+          normal.normalize();
+
+          // set indices for CCW winding order
+          iData.addElement(j*size + i);
+          iData.addElement((j+1)*size + i);
+          iData.addElement(j*size + (i+1));
+
+          iData.addElement(j*size + (i+1));
+          iData.addElement((j+1)*size + i);
+          iData.addElement((j+1)*size + (i+1));
+        }
+
+        vData.addElement(position);
+        tData.addElement(texCoord);
+        //nData.addElement(normal);
+      }
+    }
   }
 }

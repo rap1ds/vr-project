@@ -185,7 +185,7 @@ public void keyPressed()
   // Location control for wand3 which is simulated with keyboard
   if (useKeyboard && countdown.isFinished()) {
 
-    if (wand2 != null) {
+    if (wand3 != null) {
       if (key == 'a') wand3.x -= 0.6;
       if (key == 'd') wand3.x += 0.6;
       if (key == 'w') wand3.y -= 0.6;

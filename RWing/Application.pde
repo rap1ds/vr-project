@@ -51,7 +51,7 @@ public void mySetup()
   leftWand = wand[0];
   rightWand = wand[2];
   
-  if(wand.length > 2) {
+  if(wand.length > 3) {
     gunWand = wand[3];
     gunWand.setFollowCamera(true);
   }
@@ -64,7 +64,6 @@ public void myDraw(int viewID)
   noLights();
   
   sky.draw();
-  terrain.draw();
   
   // Lights
   lightSetup();
@@ -77,6 +76,7 @@ public void myDraw(int viewID)
   // Draw frames around the walls in world coordinates
   //viewManager.drawWallFrames();
 
+  terrain.draw();
   plane.draw();
   raceLine.draw();  
   

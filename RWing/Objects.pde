@@ -614,12 +614,12 @@ public class RaceLine {
   // Interval for control points
   int interval = 1000;
   
-  int ctrlPointCount = 20;
-  PVector[] ctrlPoints = new PVector[ctrlPointCount];
-  
-  int checkpointCount = 2, current = 0;
+  int checkpointCount = 8, current = 0;
   int last = checkpointCount - 1;
   Checkpoint[] checkpoints = new Checkpoint[checkpointCount];
+  
+  int ctrlPointCount = checkpointCount+3;
+  PVector[] ctrlPoints = new PVector[ctrlPointCount];
 
   int playerCtrlPoint = 1;
   float playerT = 0f;
@@ -702,6 +702,7 @@ public class RaceLine {
 
     stroke(color(255, 0, 0));
     noFill();
+    
     for (int i = 3; i < ctrlPointCount; i++) {
       PVector p0 = ctrlPoints[i-3];
       PVector p1 = ctrlPoints[i-2];

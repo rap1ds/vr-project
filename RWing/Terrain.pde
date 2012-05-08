@@ -10,21 +10,18 @@ public class Terrain {
   // Different values to play around with that affect the fractal terrain generator behavior.
   // Final results also depend on constructor parameter groundSize.
   int size = 129; // Side length for the mesh (number of iterations). NOTE: must be 2^n + 1
-  float bumpiness = 100.0;  // Initial height deviation bounds.
-  float roughness = 0.9f;   // Factor by which to reduce bumpiness with each iteration (between 0 and 1).
+  float bumpiness = 75.0;  // Initial height deviation bounds.
+  float roughness = 0.95f;   // Factor by which to reduce bumpiness with each iteration (between 0 and 1).
   
   int groundSize;
   
   Texture tex;
-    
-  PGraphicsOpenGL pgl;
-  GL gl;
   
   int[] vboID = new int[4];
   int numElements;
 
   public Terrain() {
-    this(10000);
+    this(15000);
   }
 
   public Terrain(int groundSize) {
@@ -42,8 +39,7 @@ public class Terrain {
       println("Texture file not found.");
     }
     
-    pgl = (PGraphicsOpenGL)g;
-    gl = pgl.gl;
+
     
     createAndFillVBO();
   }
@@ -64,6 +60,9 @@ public class Terrain {
     
     // Save our data length
     numElements = iData.size();
+    
+    PGraphicsOpenGL pgl = (PGraphicsOpenGL)g;
+    GL gl = pgl.gl;
     
     pgl.beginGL();
     
@@ -100,12 +99,17 @@ public class Terrain {
     translate(0, ruis.getStaticFloorY(), 0);
     scale(groundSize, 1, groundSize);
     
+    PGraphicsOpenGL pgl = (PGraphicsOpenGL)g;
+    GL gl = pgl.gl;
+    
     pgl.beginGL();
     
+    gl.glColor4f(1, 1, 1, 1);
+    
     // TODO: lighting doesn't really seem to work correctly..
-    gl.glEnable(GL.GL_LIGHTING);
-    gl.glEnable(GL.GL_LIGHT0);
-    gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
+    /*gl.glEnable(GL.GL_LIGHTING);
+    gl.glEnable(GL.GL_LIGHT1);
+    gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);*/
     
     // Bind and enable our texture
     if(tex != null) {
@@ -148,9 +152,9 @@ public class Terrain {
       tex.disable();
     }
     
-    gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);
+    /*gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);
     gl.glDisable(GL.GL_LIGHT0);
-    gl.glDisable(GL.GL_LIGHTING);
+    gl.glDisable(GL.GL_LIGHTING);*/
     
     pgl.endGL();
 

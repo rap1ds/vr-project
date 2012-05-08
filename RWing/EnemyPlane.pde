@@ -4,9 +4,9 @@ public class EnemyPlane extends PhysicalObject {
   float x;
   float y;
   float z;
-  float hitAreaSize = 10;
+  float hitAreaSize = 15;
 
-  float speed = 0; 
+  float speed = 0.5; 
   
   boolean destroyed = false;
 

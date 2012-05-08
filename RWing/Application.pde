@@ -14,6 +14,7 @@ EnemyPlane[] enemyPlanes = new EnemyPlane[enemyCount];
 PVector firePos;
 PVector enemyPlanePos;
 PVector fireRay;
+PVector wandDirection;
 
 // This function is called only once in the setup() function
 public void mySetup()
@@ -62,10 +63,6 @@ public void myDraw(int viewID)
   
   for(int i = 0; i < enemyCount; i++) {
     enemyPlanes[i].draw();
-  }
-  
-  if(fireRay != null) {
-    line(firePos.x, firePos.y, firePos.z, fireRay.x, fireRay.y, fireRay.z);
   }
 
   pushMatrix();
@@ -118,6 +115,18 @@ public void myDraw(int viewID)
 
   stroke(color(255, 0, 0));
   line(wand[0].x, wand[0].y, wand[0].z, wand[2].x, wand[2].y, wand[2].z);
+
+  if(fireRay != null) {
+    line(firePos.x, firePos.y, firePos.z, fireRay.x, fireRay.y, fireRay.z);
+  }
+
+  // Gun
+  /*
+  if(wandDirection != null) {
+    line(0, 0, 0, wandDirection.x, wandDirection.y, wandDirection.z);
+  }
+  */
+
   noStroke();
 
   hint(DISABLE_DEPTH_TEST);
@@ -194,7 +203,32 @@ public void myInteraction()
   if (!useKeyboard) {
     plane.setEuler(angle, wand[0].pitch);
   }
+  
+  if(gunWand.buttonX) {
     
+    PMatrix3D transform = plane.transform;
+    
+    float z = cos(gunWand.yaw) * cos(gunWand.pitch) * -1;
+    float x = sin(gunWand.yaw) * cos(gunWand.pitch);
+    float y = sin(gunWand.pitch) * -1;
+    
+    wandDirection = new PVector(x, y, z);
+    wandDirection.mult(2000);
+    
+    firePos = plane.getLocation();
+    fireRay = PVector.add(firePos, wandDirection);
+
+    println("FirePos: " + firePos.x + ", " + firePos.y + ", " + firePos.z);    
+    println("FireRay: " + fireRay.x + ", " + fireRay.y + ", " + fireRay.z);
+    
+    for(int i = 0; i < enemyCount; i++) {
+      EnemyPlane enemy = enemyPlanes[i];
+      boolean hit = enemy.intersects(firePos, fireRay);
+      if(hit) {
+        println("HIT!");
+      }
+    }
+  }
 
   // Set the tiny skeleton to lower left corner of the display
   skeleton0.setLocalTranslateOffset(new PVector(-.2*display[0].getWidth(), 
@@ -207,13 +241,25 @@ public void myInteraction()
 public void keyPressed()
 { 
   // Location control for wand3 which is simulated with keyboard
-  if (useKeyboard && countdown.isFinished()) {
+  if (useKeyboard /* && countdown.isFinished() */ ) {
 
+    /*
     if (wand3 != null) {
       if (key == 'a') wand3.x -= 0.6;
       if (key == 'd') wand3.x += 0.6;
       if (key == 'w') wand3.y -= 0.6;
       if (key == 's') wand3.y += 0.6;
+    }
+    */
+    
+    Wand gunWand = wand[0];
+    if (gunWand != null) {
+      if (key == 'a') { gunWand.yaw -= 0.6; }
+      if (key == 'd') gunWand.yaw += 0.6;
+      if (key == 'w') gunWand.pitch -= 0.6;
+      if (key == 's') gunWand.pitch += 0.6;
+      if (key == 'e') gunWand.roll += 0.6;
+      if (key == 'q') gunWand.roll -= 0.6;
     }
 
     if (keyCode == LEFT ) plane.roll(0.05);

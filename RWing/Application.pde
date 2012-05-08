@@ -158,6 +158,11 @@ public void myDraw(int viewID)
       enemyPlanes[i].startEngine();
     }
   }
+  
+  if(raceLine.finished) {
+    viewManager.renderText("Finish!", 0.4, 0.45, color(200, 255, 100), 2, viewID);
+    viewManager.renderText(timer.formattedTime(), 0.4, 0.55, color(200, 255, 100), 2, viewID);
+  }
 
   hint(ENABLE_DEPTH_TEST);
 }

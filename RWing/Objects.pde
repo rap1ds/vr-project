@@ -414,6 +414,14 @@ public class Checkpoint extends PhysicalObject {
     if(intersects(p0, p1) && index == raceLine.current) {
       raceLine.current++;
       plane.speedBoost();
+      
+      // Was last one
+      if(index == raceLine.last) {
+        // Finish!
+        raceLine.finished = true;
+        timer.stop();
+      }
+      
       return true;
     }
     
@@ -579,7 +587,8 @@ public class RaceLine {
   int ctrlPointCount = 20;
   PVector[] ctrlPoints = new PVector[ctrlPointCount];
   
-  int checkpointCount = 8, current = 0;
+  int checkpointCount = 1, current = 0;
+  int last = checkpointCount - 1;
   Checkpoint[] checkpoints = new Checkpoint[checkpointCount];
 
   int playerCtrlPoint = 1;
@@ -589,6 +598,8 @@ public class RaceLine {
   int lookAtCtrlPoint = 1;
   float lookAtT = playerT + lookAtDistance;
   float flyingSpeed = 0.005;
+  
+  boolean finished = false;
 
   public void setup() {
     generateControlPoints();

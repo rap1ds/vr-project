@@ -17,7 +17,7 @@ public void mySetup()
   
   minim = new Minim(this);
 
-  ruis.addObject(new Ground());
+  ruis.addObject(new Terrain());
   ruis.addObject(new Sky());
 
   plane = new Plane(this, "biplane.3DS");

@@ -4,35 +4,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import com.sun.opengl.util.BufferUtil;
 import com.sun.opengl.util.texture.*;
- 
-// buffer converters
-FloatBuffer toFloatBuffer(Vector<PVector> data, int n)
-{
-  FloatBuffer a  = BufferUtil.newFloatBuffer(data.size() * n);
- 
-  for (int i = 0; i < data.size(); i++)
-  {
-    PVector v = data.elementAt(i);
-    if(n >= 1) a.put(v.x);
-    if(n >= 2) a.put(v.y);
-    if(n >= 3) a.put(v.z);
-    //if(n >= 4) a.put(v.w); // PVEctor only contains 3 elements
-  }
-  a.rewind();
-  return a;
-}
-
-IntBuffer toIntBuffer(Vector<Integer> data)
-{
-  IntBuffer a = BufferUtil.newIntBuffer(data.size());
-  
-  for (int i = 0; i < data.size(); i++)
-  {
-    a.put(data.elementAt(i));
-  }
-  a.rewind();
-  return a;
-}
 
 public class Terrain extends PhysicalObject {
   
@@ -47,7 +18,7 @@ public class Terrain extends PhysicalObject {
   PGraphicsOpenGL pgl;
   GL gl;
   
-  int[] vboID = new int[3];
+  int[] vboID = new int[4];
   int numElements;
 
   public Terrain() {
@@ -82,11 +53,12 @@ public class Terrain extends PhysicalObject {
     
     // Build vertex and texture coordinate data
     Vector<PVector> vData = new Vector<PVector>();
+    Vector<PVector> nData = new Vector<PVector>();
     Vector<PVector> tData = new Vector<PVector>();
     Vector<Integer> iData = new Vector<Integer>();
     
-    //buildFlatData(texScale, vData, tData, iData);
-    buildFractalData(this.size, texScale, vData, tData, iData);
+    //buildFlatData(texScale, vData, nData,tData, iData);
+    buildFractalData(this.size, texScale, vData, nData, tData, iData);
     
     // Save our data length
     numElements = iData.size();
@@ -94,18 +66,22 @@ public class Terrain extends PhysicalObject {
     pgl.beginGL();
     
     // Generate VBOs
-    gl.glGenBuffers(3, vboID, 0);
+    gl.glGenBuffers(4, vboID, 0);
     
     // Bind and upload data for vertex coordinates
     gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboID[0]);
     gl.glBufferData(GL.GL_ARRAY_BUFFER, vData.size() * 3 * BufferUtil.SIZEOF_FLOAT, toFloatBuffer(vData, 3), GL.GL_STATIC_DRAW);
     
-    // Bind and upload data for texture coordinates
+    // Bind and upload data for normals
     gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboID[1]);
+    gl.glBufferData(GL.GL_ARRAY_BUFFER, nData.size() * 3 * BufferUtil.SIZEOF_FLOAT, toFloatBuffer(nData, 3), GL.GL_STATIC_DRAW);
+    
+    // Bind and upload data for texture coordinates
+    gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboID[2]);
     gl.glBufferData(GL.GL_ARRAY_BUFFER, tData.size() * 2 * BufferUtil.SIZEOF_FLOAT, toFloatBuffer(tData, 2), GL.GL_STATIC_DRAW);
     
     // Bind element array
-    gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, vboID[2]);
+    gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, vboID[3]);
     gl.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, iData.size() * BufferUtil.SIZEOF_INT, toIntBuffer(iData), GL.GL_STATIC_DRAW);
     
     // Unbind buffer
@@ -115,13 +91,18 @@ public class Terrain extends PhysicalObject {
   }
   
   public void renderAtOrigin() {
-
+    
     pushMatrix();
     
     // Transformation (note: just ignore translation, we probably always want to be in the origin)
     scale(super.width, super.height, super.depth);
     
     pgl.beginGL();
+    
+    // TODO: lighting doesn't really seem to work correctly..
+    /*gl.glEnable(GL.GL_LIGHTING);
+    gl.glEnable(GL.GL_LIGHT0);
+    gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);*/
     
     // Bind and enable our texture
     if(tex != null) {
@@ -131,19 +112,23 @@ public class Terrain extends PhysicalObject {
     
     // Enable vertex array and texture coordinate client states
     gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
+    gl.glEnableClientState(GL.GL_NORMAL_ARRAY);
     gl.glEnableClientState(GL.GL_TEXTURE_COORD_ARRAY);
-    gl.glEnableClientState(GL.GL_INDEX_ARRAY);
     
     // Bind our vertex data buffer and set vertex pointer
     gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboID[0]);
     gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
     
-    // Bind our texture coordinate buffer and set texcoord pointer
+    // Bind our normal buffer and set normal pointer
     gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboID[1]);
+    gl.glNormalPointer(GL.GL_FLOAT, 0, 0);
+    
+    // Bind our texture coordinate buffer and set texcoord pointer
+    gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboID[2]);
     gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, 0);
     
     // Bind index buffer
-    gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, vboID[2]);
+    gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, vboID[3]);
     
     // Draw quad primitives
     gl.glDrawElements(GL.GL_TRIANGLES, numElements, GL.GL_UNSIGNED_INT, 0);
@@ -152,8 +137,8 @@ public class Terrain extends PhysicalObject {
     gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
 
     // Disable our client states
-    gl.glDisableClientState(GL.GL_INDEX_ARRAY);
-    gl.glDisableClientState(GL.GL_TEXTURE_COORD_ARRAY);    
+    gl.glDisableClientState(GL.GL_TEXTURE_COORD_ARRAY);
+    gl.glDisableClientState(GL.GL_NORMAL_ARRAY);
     gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
     
     if(tex != null) {
@@ -165,28 +150,31 @@ public class Terrain extends PhysicalObject {
     popMatrix();
   }
   
-  private void buildFlatData(float texScale, Vector<PVector> vData, Vector<PVector> tData, Vector<Integer> iData)
+  private void buildFlatData(float texScale, Vector<PVector> vData, Vector<PVector> nData, Vector<PVector> tData, Vector<Integer> iData)
   {
-    int i = 0;
-    
     vData.addElement(new PVector(-1, 0, 1));
+    nData.addElement(new PVector(0, 1, 0));
     tData.addElement(new PVector(0, 0));
     
     vData.addElement(new PVector(1, 0, 1));
+    nData.addElement(new PVector(0, 1, 0));
     tData.addElement(new PVector(texScale, 0));
     
     vData.addElement(new PVector(1, 0, -1));
+    nData.addElement(new PVector(0, 1, 0));
     tData.addElement(new PVector(texScale, texScale));
     
     vData.addElement(new PVector(-1, 0, -1));
+    nData.addElement(new PVector(0, 1, 0));
     tData.addElement(new PVector(0, texScale));
     
     iData.addAll(Arrays.asList(new Integer[] { 0,1,2, 0,2,3 }));
   }
   
-  private void buildFractalData(int size, float texScale, Vector<PVector> vData, Vector<PVector> tData, Vector<Integer> iData)
+  private void buildFractalData(int size, float texScale, Vector<PVector> vData, Vector<PVector> nData, Vector<PVector> tData, Vector<Integer> iData)
   {
     vData.clear();
+    nData.clear();
     tData.clear();
     iData.clear();
     
@@ -264,8 +252,6 @@ public class Terrain extends PhysicalObject {
         PVector position = new PVector(x, y, z);
         PVector normal = new PVector(0, 1, 0);
         PVector texCoord = new PVector(x * texScale, z * texScale);
-        
-        //Mesh::vertex v = { glm::vec3(x, y, z), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(x, z) * textureSize, color };
 
         if (i < size-1 && j < size-1)
         {
@@ -289,8 +275,36 @@ public class Terrain extends PhysicalObject {
 
         vData.addElement(position);
         tData.addElement(texCoord);
-        //nData.addElement(normal);
+        nData.addElement(normal);
       }
     }
   }
+}
+
+FloatBuffer toFloatBuffer(Vector<PVector> data, int n)
+{
+  FloatBuffer a  = BufferUtil.newFloatBuffer(data.size() * n);
+ 
+  for (int i = 0; i < data.size(); i++)
+  {
+    PVector v = data.elementAt(i);
+    if(n >= 1) a.put(v.x);
+    if(n >= 2) a.put(v.y);
+    if(n >= 3) a.put(v.z);
+    //if(n >= 4) a.put(v.w); // PVEctor only contains 3 elements
+  }
+  a.rewind();
+  return a;
+}
+
+IntBuffer toIntBuffer(Vector<Integer> data)
+{
+  IntBuffer a = BufferUtil.newIntBuffer(data.size());
+  
+  for (int i = 0; i < data.size(); i++)
+  {
+    a.put(data.elementAt(i));
+  }
+  a.rewind();
+  return a;
 }

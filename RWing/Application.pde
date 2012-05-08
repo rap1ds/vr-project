@@ -44,8 +44,10 @@ public void mySetup()
   camera.location.set(viewManager.getHeadX(), viewManager.getHeadY(), viewManager.getHeadZ());
   camera.target.set(display[0].center.x, display[0].center.y, display[0].center.z);
   
-  gunWand = wand[2];
-  gunWand.setFollowCamera(true);
+  if(wand.length > 2) {
+    gunWand = wand[2];
+    gunWand.setFollowCamera(true);
+  }
 }
 
 // This function is called for each view in the draw() loop.
@@ -265,7 +267,27 @@ public void myInteraction()
   
   
   if(gunWand.buttonX) {
-    // FIX
+    firePos = plane.getLocation();
+    float gunX = gunWand.worldX;
+    float gunY = gunWand.worldY;
+    float gunZ = gunWand.worldZ;
+    PVector gunDirection = new PVector(2000*gunWand.vectForwardWorld.x, 
+                                           2000*gunWand.vectForwardWorld.y, 
+                                           2000*gunWand.vectForwardWorld.z);
+    gunDirection.add(firePos);
+    
+    fireRay = gunDirection;
+    
+    println("FirePos: " + firePos.x + ", " + firePos.y + ", " + firePos.z);    
+    println("FireRay: " + fireRay.x + ", " + fireRay.y + ", " + fireRay.z);
+    
+    for(int i = 0; i < enemyPlanes.length; i++) {
+      EnemyPlane enemy = enemyPlanes[i];
+      boolean hit = enemy.intersects(firePos, fireRay);
+      if(hit) {
+        println("HIT!!!");
+      }
+    }
   }
 
   // Set the tiny skeleton to lower left corner of the display

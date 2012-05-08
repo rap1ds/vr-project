@@ -193,7 +193,7 @@ public void myInteraction()
    leftWand.z = rightWand.z;
    */
 
-  PVector wandDiff = new PVector(rightWand.x - leftWand.x, 
+  /*PVector wandDiff = new PVector(rightWand.x - leftWand.x, 
   0, 
   rightWand.z - leftWand.z);
 
@@ -206,8 +206,51 @@ public void myInteraction()
   if (wandDiff.x > 0) angle = -angle;
 
   if (!useKeyboard) {
-    plane.setEuler(angle, wand[0].pitch);
-  }
+    plane.setEuler(1.5f * angle, (wand[0].pitch + wand[2].pitch) * 0.5f * 0.01f);
+  }*/
+  
+  PVector wandDiff = PVector.sub(new PVector(leftWand.x, leftWand.y, 0), new PVector(rightWand.x, rightWand.y, 0));
+  if(wandDiff.x > 0)
+    wandDiff.x = -wandDiff.x;
+    
+  wandDiff.normalize();
+  
+  PVector R = wandDiff;
+  //PVector R = new PVector(1, 0, 0);
+  PVector U = new PVector(0, -1, 0);
+  U.normalize();
+  
+  PVector F = R.cross(U);
+  F.normalize();
+  
+  U = R.cross(F);
+  U.normalize();
+  
+  PMatrix3D m = new PMatrix3D(
+    F.x, F.y, F.z, 0,
+    U.x, U.y, U.z, 0,
+    R.x, R.y, R.z, 0,
+    0, 0, 0, 1);
+
+  /*println("F: " + F);
+  println("U: " + U);
+  println("R: " + R);
+  println();*/
+  
+  //Rotation rot = new Rotation();
+  //rot.set(m);
+  
+  Quaternion q = Quaternion.fromMatrix(m);
+  //q.set(rot.quat.w, rot.quat.x, rot.quat.y, rot.quat.z);
+  
+  //plane.rotationMatrix = m;
+  //plane.setQuaternion(q);
+  
+  float factor = 0.1f;
+  plane.pitch((wand[0].pitch + wand[2].pitch) * 0.5f * factor);
+  plane.setQuaternion(q);  
+
+  plane.update();
   
   if(gunWand.buttonX) {
     

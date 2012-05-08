@@ -174,8 +174,11 @@ public class Plane extends PhysicalObject {
   PVector baseDirection, direction, location;
   PMatrix3D transform;
   Quaternion rotation;
+  PMatrix3D rotationMatrix;
   AudioPlayer sound;
   LowPassFS lpfilter;
+  
+  Quaternion pitchQuat = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), 0);
   
   static final float SPEED_BOOST_DURATION = 7000f;
   static final int SPEED_BOOST_MULTIPLIER = 3;
@@ -184,9 +187,9 @@ public class Plane extends PhysicalObject {
   float speed, speedBoost;
   Timer speedBoostTimer = new Timer();
   
-  float stiffness = 3000.0f;
-  float damping = 1000.0f;
-  float mass = 10.0f;
+  float stiffness = 1800.0f;
+  float damping = 3000.0f;
+  float mass = 50.0f;
   
   PVector currentRot = new PVector(0, 0);
   PVector desiredRot = new PVector(0, 0);
@@ -211,22 +214,29 @@ public class Plane extends PhysicalObject {
     rotation = rotation.mult(yaw);
   }
 
+float i(float[] m, int r, int c) {
+    return m[r*4 + c];
+  }
+  
   public void draw() {
-    direction = rotation.rotateVector(baseDirection);
-    
+    //rotation = Quaternion.fromMatrix(rotationMatrix);
+
     PVector eulerAngles = rotation.getAsEulerAngles();
     
     transform.reset();
     transform.translate(location.x, location.y, location.z);
-    transform.translate(0, -8, 0);    
+    transform.translate(0, -8, 0);
+    
     transform.rotateZ(eulerAngles.z);
     transform.rotateY(eulerAngles.y);
     transform.rotateX(eulerAngles.x);
+    
     transform.translate(0, 8, 0);
     
     pushMatrix();
     
     applyMatrix(transform);
+    //applyMatrix(rotationMatrix);
     
     // TODO: this is because the model has a different base than processing
     scale(1, -1, -1);
@@ -244,19 +254,25 @@ public class Plane extends PhysicalObject {
     // Calculate "easing angle" with spring force
     
     // Apply +- PI to currentRot if it's closer to desiredRot that way, fixes bump at +-PI/2
-    if (abs(currentRot.x + PI - desiredRot.x) < abs(currentRot.x - desiredRot.x)) {
+    /*if (abs(currentRot.x + PI - desiredRot.x) < abs(currentRot.x - desiredRot.x)) {
       currentRot.x += PI;
     } else if (abs(currentRot.x - PI - desiredRot.x) < abs(currentRot.x - desiredRot.x)) {
       currentRot.x -= PI;
-    }
+    }*/
+  }
   
+  public void update() {
+    
+    rotation = rotation.mult(pitchQuat);
+    direction = rotation.rotateVector(baseDirection);
+    
     // Calculate displacement force
     PVector displacement = PVector.sub(currentRot, desiredRot);    
     PVector force = PVector.sub(PVector.mult(displacement, -stiffness), PVector.mult(rotVelocity, damping));
     
     // TODO: this shouldn't be hard-coded for 60 fps
     float elapsed = 0.016f;
-        
+
     // Calculate acceleration and velocity based on force and update location
     PVector acceleration = PVector.div(force, mass);
     rotVelocity.add(PVector.mult(acceleration, elapsed));
@@ -264,13 +280,14 @@ public class Plane extends PhysicalObject {
     PVector applyRot = PVector.mult(rotVelocity, elapsed);
     currentRot.add(applyRot);
   
-    Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), applyRot.x);
+    //Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), applyRot.x);
+    
     Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), applyRot.y);
-    rotation = rotation.mult(roll.mult(pitch));
+    pitchQuat = pitchQuat.mult(pitch);
   }
   
   public void startEngine() {
-    speed = 1f;
+    speed = 0.25f;
     sound.loop();
   }
   
@@ -302,6 +319,12 @@ public class Plane extends PhysicalObject {
     // TODO: tanne constraint...
     desiredRot.y += pitchAngle;
     desiredRot.x = rollAngle;
+  }
+  
+  public void setQuaternion(Quaternion q) {
+    //Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), desiredRot.y);
+    //rotation = q.mult(pitch);
+    rotation = q;
   }
   
   public PVector getLocation() {

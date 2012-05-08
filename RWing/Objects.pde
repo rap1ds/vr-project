@@ -102,25 +102,24 @@ public class Ground extends PhysicalObject {
   }
 }
 
-public class Sky extends PhysicalObject {
+public class Sky {
 
   PImage skyTexture;
+  int size;
 
   public Sky() {
     this(5000);
   }
 
-  public Sky(int skySize) {
-    super(skySize, skySize, skySize, 1, 0, ruis.getStaticFloorY() - skySize, 0, color(200), PhysicalObject.IMMATERIAL_OBJECT);
+  public Sky(int size) {
+    this.size = size;
     skyTexture = loadImage("skybox_texture.jpg");
   }
 
-  public void renderAtOrigin() {
-    this.setLocation(camera.location.x, camera.location.y, camera.location.z);
-
-    noLights();
+  public void draw() {
     pushMatrix();
-    scale(super.width, super.height, super.depth);
+    translate(camera.location.x, camera.location.y, camera.location.z);  
+    scale(size, size, size);
     beginShape(QUADS);
 
     texture(skyTexture);

@@ -16,6 +16,7 @@ PVector enemyPlanePos;
 PVector fireRay;
 PVector wandDirection;
 Wand gunWand;
+Sky sky;
 
 // This function is called only once in the setup() function
 public void mySetup()
@@ -25,7 +26,7 @@ public void mySetup()
   minim = new Minim(this);
 
   ruis.addObject(new Terrain());
-  ruis.addObject(new Sky());
+  sky = new Sky();
 
   plane = new Plane(this, "biplane.3DS");
   
@@ -51,6 +52,9 @@ public void mySetup()
 // Place only drawing function calls here, and NO interaction code!
 public void myDraw(int viewID)
 { 
+  noLights();
+  sky.draw();
+  
   // Lights
   lightSetup();
 

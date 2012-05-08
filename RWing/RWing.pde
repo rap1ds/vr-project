@@ -15,6 +15,8 @@ import mri.v3ds.*;
 import ddf.minim.*;
 import ddf.minim.effects.*;
 
+import SimpleOpenNI.*;
+
 public RUIS ruis;
 public ViewManager viewManager;
 public InputManager inputManager;

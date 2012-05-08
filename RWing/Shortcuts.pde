@@ -155,7 +155,7 @@ public PVector getCameraUp()
  */
 public float getCameraRotX()
 {
-  return viewManager.getCameraRotX();
+  return viewManager.getCameraYaw();
 }
 
 /**
@@ -163,7 +163,7 @@ public float getCameraRotX()
  */
 public float getCameraRotY()
 {
-  return viewManager.getCameraRotY();
+  return viewManager.getCameraPitch();
 }
 
 /**
@@ -171,7 +171,7 @@ public float getCameraRotY()
  */
 public float getCameraRotZ()
 {
-  return viewManager.getCameraRotZ();
+  return viewManager.getCameraRoll();
 }
 
 /**
@@ -196,7 +196,7 @@ public float[][] inverseRotation(float[][] rotation)
  */
 public float[][] getCameraRotMat()
 {
-  return viewManager.getCameraRotMat();
+  return viewManager.getCameraRotation().r;
 }
 
 /**
@@ -224,7 +224,7 @@ public void createShortcuts()
                || typeName.equals("PSMoveWand[]")
                || typeName.equals("WiimoteWand[]")
                || typeName.equals("SkeletonWand[]")
-               || typeName.equals("Skeleton[]")
+               || typeName.equals("RuisSkeleton[]")
                || typeName.equals("RuisSkeletonManager"))
             {
               attemptSubstitution(fields[i], typeName);

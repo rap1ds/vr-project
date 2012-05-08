@@ -165,7 +165,6 @@ public class Sky extends PhysicalObject {
     endShape();
 
     popMatrix();
-    lights();
   }
 }
 

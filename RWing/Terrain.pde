@@ -100,9 +100,9 @@ public class Terrain extends PhysicalObject {
     pgl.beginGL();
     
     // TODO: lighting doesn't really seem to work correctly..
-    /*gl.glEnable(GL.GL_LIGHTING);
+    gl.glEnable(GL.GL_LIGHTING);
     gl.glEnable(GL.GL_LIGHT0);
-    gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);*/
+    gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
     
     // Bind and enable our texture
     if(tex != null) {
@@ -144,6 +144,10 @@ public class Terrain extends PhysicalObject {
     if(tex != null) {
       tex.disable();
     }
+    
+    gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);
+    gl.glDisable(GL.GL_LIGHT0);
+    gl.glDisable(GL.GL_LIGHTING);
     
     pgl.endGL();
 

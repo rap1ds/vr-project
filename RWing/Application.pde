@@ -15,6 +15,7 @@ PVector firePos;
 PVector enemyPlanePos;
 PVector fireRay;
 PVector wandDirection;
+Wand gunWand;
 
 // This function is called only once in the setup() function
 public void mySetup()
@@ -41,6 +42,9 @@ public void mySetup()
 
   camera.location.set(viewManager.getHeadX(), viewManager.getHeadY(), viewManager.getHeadZ());
   camera.target.set(display[0].center.x, display[0].center.y, display[0].center.z);
+  
+  gunWand = wand[2];
+  gunWand.setFollowCamera(true);
 }
 
 // This function is called for each view in the draw() loop.
@@ -163,6 +167,8 @@ public void myDraw(int viewID)
     viewManager.renderText("Finish!", 0.4, 0.45, color(200, 255, 100), 2, viewID);
     viewManager.renderText(timer.formattedTime(), 0.4, 0.55, color(200, 255, 100), 2, viewID);
   }
+  
+  // println("Gun wand " + gunWand.worldX + ", " + gunWand.worldY + ", " + gunWand.worldZ);
 
   hint(ENABLE_DEPTH_TEST);
 }
@@ -184,7 +190,6 @@ public void myInteraction()
 
   Wand leftWand = wand[0];
   Wand rightWand = wand[2];
-  Wand gunWand = wand[0];
 
   // uncomment for mouse dev testing
   /*
@@ -253,29 +258,7 @@ public void myInteraction()
   plane.update();
   
   if(gunWand.buttonX) {
-    
-    PMatrix3D transform = plane.transform;
-    
-    float z = cos(gunWand.yaw) * cos(gunWand.pitch) * -1;
-    float x = sin(gunWand.yaw) * cos(gunWand.pitch);
-    float y = sin(gunWand.pitch) * -1;
-    
-    wandDirection = new PVector(x, y, z);
-    wandDirection.mult(2000);
-    
-    firePos = plane.getLocation();
-    fireRay = PVector.add(firePos, wandDirection);
-
-    println("FirePos: " + firePos.x + ", " + firePos.y + ", " + firePos.z);    
-    println("FireRay: " + fireRay.x + ", " + fireRay.y + ", " + fireRay.z);
-    
-    for(int i = 0; i < enemyCount; i++) {
-      EnemyPlane enemy = enemyPlanes[i];
-      boolean hit = enemy.intersects(firePos, fireRay);
-      if(hit) {
-        println("HIT!");
-      }
-    }
+    // FIX
   }
 
   // Set the tiny skeleton to lower left corner of the display
@@ -299,8 +282,7 @@ public void keyPressed()
       if (key == 's') wand3.y += 0.6;
     }
     */
-    
-    Wand gunWand = wand[0];
+
     if (gunWand != null) {
       if (key == 'a') { gunWand.yaw -= 0.6; }
       if (key == 'd') gunWand.yaw += 0.6;
@@ -343,7 +325,44 @@ public void keyPressed()
     if(hit) {
       print("HIIIITTTT!!!!");
     }
+    */   
+    /*
+    PMatrix3D transform = plane.transform;
+    
+    float z = cos(gunWand.yaw) * cos(gunWand.pitch) * -1;
+    float x = sin(gunWand.yaw) * cos(gunWand.pitch);
+    float y = sin(gunWand.pitch) * -1;
+    
+    wandDirection = new PVector(x, y, z);
+    wandDirection.mult(2000);
+    
+    firePos = plane.getLocation();
+    fireRay = PVector.add(firePos, wandDirection);
+
+    println("FirePos: " + firePos.x + ", " + firePos.y + ", " + firePos.z);    
+    println("FireRay: " + fireRay.x + ", " + fireRay.y + ", " + fireRay.z);
+    
+    for(int i = 0; i < enemyCount; i++) {
+      EnemyPlane enemy = enemyPlanes[i];
+      boolean hit = enemy.intersects(firePos, fireRay);
+      if(hit) {
+        println("HIT!");
+      }
+    }
     */
+    firePos = plane.getLocation();
+    float gunX = gunWand.worldX;
+    float gunY = gunWand.worldY;
+    float gunZ = gunWand.worldZ;
+    PVector gunDirection = new PVector(2000*gunWand.vectForwardWorld.x, 
+                                           2000*gunWand.vectForwardWorld.y, 
+                                           2000*gunWand.vectForwardWorld.z);
+    gunDirection.add(firePos);
+    
+    fireRay = gunDirection;
+    
+    println("FirePos: " + firePos.x + ", " + firePos.y + ", " + firePos.z);    
+    println("FireRay: " + fireRay.x + ", " + fireRay.y + ", " + fireRay.z);
     
   }
   

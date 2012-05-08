@@ -5,13 +5,15 @@ import java.nio.IntBuffer;
 import com.sun.opengl.util.BufferUtil;
 import com.sun.opengl.util.texture.*;
 
-public class Terrain extends PhysicalObject {
+public class Terrain {
   
   // Different values to play around with that affect the fractal terrain generator behavior.
   // Final results also depend on constructor parameter groundSize.
   int size = 129; // Side length for the mesh (number of iterations). NOTE: must be 2^n + 1
   float bumpiness = 100.0;  // Initial height deviation bounds.
   float roughness = 0.9f;   // Factor by which to reduce bumpiness with each iteration (between 0 and 1).
+  
+  int groundSize;
   
   Texture tex;
     
@@ -26,7 +28,7 @@ public class Terrain extends PhysicalObject {
   }
 
   public Terrain(int groundSize) {
-    super(groundSize, 1, groundSize, 1, 0, ruis.getStaticFloorY(), 0, color(200), PhysicalObject.IMMATERIAL_OBJECT);
+    this.groundSize = groundSize;
     
     try {
       // Load texture
@@ -49,7 +51,7 @@ public class Terrain extends PhysicalObject {
   private void createAndFillVBO() {
     
     // Guesstimate for nice-looking texture resolution
-    float texScale = min(super.width, super.depth) / 100.0f;
+    float texScale = this.groundSize / 100.0f;
     
     // Build vertex and texture coordinate data
     Vector<PVector> vData = new Vector<PVector>();
@@ -90,12 +92,13 @@ public class Terrain extends PhysicalObject {
     pgl.endGL();
   }
   
-  public void renderAtOrigin() {
+  public void draw() {
     
     pushMatrix();
     
     // Transformation (note: just ignore translation, we probably always want to be in the origin)
-    scale(super.width, super.height, super.depth);
+    translate(0, ruis.getStaticFloorY(), 0);
+    scale(groundSize, 1, groundSize);
     
     pgl.beginGL();
     

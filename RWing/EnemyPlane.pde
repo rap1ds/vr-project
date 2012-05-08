@@ -6,7 +6,7 @@ public class EnemyPlane extends PhysicalObject {
   float z;
   float hitAreaSize = 15;
 
-  float speed = 0.5; 
+  float speed = 0.25; 
   
   boolean destroyed = false;
 
@@ -27,8 +27,6 @@ public class EnemyPlane extends PhysicalObject {
   public void draw() {
 
     if(!destroyed) {
-    
-    z -= speed;
 
     // Hit area
     /*
@@ -50,6 +48,12 @@ public class EnemyPlane extends PhysicalObject {
     model.draw();
 
     popMatrix();
+    }
+  }
+  
+  public void update() {
+    if (!destroyed) {
+      z -= speed;
     }
   }
   

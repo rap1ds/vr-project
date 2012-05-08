@@ -24,15 +24,17 @@ public InputManager inputManager;
 // Width and height in pixels for each rendered screen
 
 // DEV
-int VIEW_WIDTH  = 640;
-int VIEW_HEIGHT = 640;
+// int VIEW_WIDTH  = 640;
+// int VIEW_HEIGHT = 640;
 
 // PROD
-//int VIEW_WIDTH  = 800;
-//int VIEW_HEIGHT = 600;
+int VIEW_WIDTH  = 800;
+int VIEW_HEIGHT = 600;
 
-String displayConfigFileName = "displayConfigDev.xml";
-String inputConfigFileName = "inputConfigDev.xml";
+// String displayConfigFileName = "displayConfigDev.xml";
+// String inputConfigFileName = "inputConfigDev.xml";
+String displayConfigFileName = "displayConfig.xml";
+String inputConfigFileName = "inputConfig.xml";
 String ruisConfigFileName = "ruisConfig.xml";
 
 public void setup()

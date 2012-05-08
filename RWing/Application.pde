@@ -1,6 +1,10 @@
 /* The application logic is here */
 
-boolean useKeyboard = true;
+boolean useKeyboard = false;
+
+Wand leftWand;
+Wand rightWand;
+Wand gunWand;
 
 Minim minim;
 
@@ -15,17 +19,17 @@ PVector firePos;
 PVector enemyPlanePos;
 PVector fireRay;
 PVector wandDirection;
-Wand gunWand;
+Terrain terrain;
 Sky sky;
 
 // This function is called only once in the setup() function
 public void mySetup()
 {
   viewManager.setDisplayGridDraw(false);
-  
+   
   minim = new Minim(this);
 
-  ruis.addObject(new Terrain());
+  terrain = new Terrain();
   sky = new Sky();
 
   plane = new Plane(this, "biplane.3DS");
@@ -44,8 +48,11 @@ public void mySetup()
   camera.location.set(viewManager.getHeadX(), viewManager.getHeadY(), viewManager.getHeadZ());
   camera.target.set(display[0].center.x, display[0].center.y, display[0].center.z);
   
+  leftWand = wand[0];
+  rightWand = wand[2];
+  
   if(wand.length > 2) {
-    gunWand = wand[2];
+    gunWand = wand[3];
     gunWand.setFollowCamera(true);
   }
 }
@@ -55,21 +62,23 @@ public void mySetup()
 public void myDraw(int viewID)
 { 
   noLights();
+  
   sky.draw();
+  terrain.draw();
   
   // Lights
   lightSetup();
 
-  ruis.drawWands(1.f);
-  ruis.drawSelectables();
+  //ruis.drawWands(1.f);
+  //ruis.drawSelectables();
   ruis.drawPlainObjects();
-  ruis.drawSelectionRanges(); // Only if selection button is pressed
+  //ruis.drawSelectionRanges(); // Only if selection button is pressed
 
   // Draw frames around the walls in world coordinates
-  viewManager.drawWallFrames();
+  //viewManager.drawWallFrames();
 
   plane.draw();
-  raceLine.draw();
+  raceLine.draw();  
   
   for(int i = 0; i < enemyCount; i++) {
     enemyPlanes[i].draw();
@@ -123,19 +132,13 @@ public void myDraw(int viewID)
     );
   popMatrix();
 
-  stroke(color(255, 0, 0));
-  line(wand[0].x, wand[0].y, wand[0].z, wand[2].x, wand[2].y, wand[2].z);
+  //stroke(color(255, 0, 0));
+  //line(wand[0].x, wand[0].y, wand[0].z, wand[2].x, wand[2].y, wand[2].z);
 
   if(fireRay != null) {
-    line(firePos.x, firePos.y, firePos.z, fireRay.x, fireRay.y, fireRay.z);
+    stroke(color(255, 0, 0));
+    line(plane.location.x, plane.location.y, plane.location.z, fireRay.x, fireRay.y, fireRay.z);
   }
-
-  // Gun
-  /*
-  if(wandDirection != null) {
-    line(0, 0, 0, wandDirection.x, wandDirection.y, wandDirection.z);
-  }
-  */
 
   noStroke();
 
@@ -194,17 +197,7 @@ public void myInteraction()
   camera.target.x, camera.target.y, camera.target.z, 
   camera.up.x, camera.up.y, camera.up.z);
 
-  Wand leftWand = wand[0];
-  Wand rightWand = wand[2];
-
-  // uncomment for mouse dev testing
-  /*
-  leftWand.x = 0;
-   leftWand.y = 0;
-   leftWand.z = rightWand.z;
-   */
-
-  /*PVector wandDiff = new PVector(rightWand.x - leftWand.x, 
+  PVector wandDiff = new PVector(rightWand.x - leftWand.x, 
   0, 
   rightWand.z - leftWand.z);
 
@@ -217,17 +210,17 @@ public void myInteraction()
   if (wandDiff.x > 0) angle = -angle;
 
   if (!useKeyboard) {
-    plane.setEuler(1.5f * angle, (wand[0].pitch + wand[2].pitch) * 0.5f * 0.01f);
-  }*/
+    float factor = 0.02f;
+    plane.setEuler(1.5f * angle, (wand[0].pitch + wand[2].pitch) * 0.5f * factor);
+  }
   
-  PVector wandDiff = PVector.sub(new PVector(leftWand.x, leftWand.y, 0), new PVector(rightWand.x, rightWand.y, 0));
+  /*PVector wandDiff = PVector.sub(new PVector(leftWand.x, leftWand.y, 0), new PVector(rightWand.x, rightWand.y, 0));
   if(wandDiff.x > 0)
     wandDiff.x = -wandDiff.x;
     
   wandDiff.normalize();
   
   PVector R = wandDiff;
-  //PVector R = new PVector(1, 0, 0);
   PVector U = new PVector(0, -1, 0);
   U.normalize();
   
@@ -242,50 +235,55 @@ public void myInteraction()
     U.x, U.y, U.z, 0,
     R.x, R.y, R.z, 0,
     0, 0, 0, 1);
-
-  /*println("F: " + F);
-  println("U: " + U);
-  println("R: " + R);
-  println();*/
   
-  //Rotation rot = new Rotation();
-  //rot.set(m);
-  
-  Quaternion q = Quaternion.fromMatrix(m);
-  //q.set(rot.quat.w, rot.quat.x, rot.quat.y, rot.quat.z);
-  
-  //plane.rotationMatrix = m;
+  //Quaternion q = Quaternion.fromMatrix(m);
   //plane.setQuaternion(q);
   
   if(!useKeyboard) {
     float factor = 0.1f;
     plane.pitch((wand[0].pitch + wand[2].pitch) * 0.5f * factor);
     plane.setQuaternion(q);  
-  }
+  }*/
   
   plane.update();
+
+  for(int i = 0; i < enemyCount; i++) {
+    enemyPlanes[i].update();
+  }
   
+  if ((raceLine.finished || !countdown.isStarted()) && leftWand.buttonTrigger) {
+    resetGame();
+  }
+  else if (!countdown.isStarted()) {
+    if (rightWand.buttonTrigger)
+      countdown.start();
+  }
+  else if (countdown.isFinished()) {
+    if (rightWand.buttonTrigger)
+      plane.accelerate();
+    if (leftWand.buttonTrigger)
+      plane.decelerate();
   
-  if(gunWand.buttonX) {
-    firePos = plane.getLocation();
-    float gunX = gunWand.worldX;
-    float gunY = gunWand.worldY;
-    float gunZ = gunWand.worldZ;
-    PVector gunDirection = new PVector(2000*gunWand.vectForwardWorld.x, 
-                                           2000*gunWand.vectForwardWorld.y, 
-                                           2000*gunWand.vectForwardWorld.z);
-    gunDirection.add(firePos);
-    
-    fireRay = gunDirection;
-    
-    println("FirePos: " + firePos.x + ", " + firePos.y + ", " + firePos.z);    
-    println("FireRay: " + fireRay.x + ", " + fireRay.y + ", " + fireRay.z);
-    
-    for(int i = 0; i < enemyPlanes.length; i++) {
-      EnemyPlane enemy = enemyPlanes[i];
-      boolean hit = enemy.intersects(firePos, fireRay);
-      if(hit) {
-        println("HIT!!!");
+    if(gunWand.buttonTrigger) {
+      firePos = plane.getLocation();
+      
+      PVector gun = new PVector(gunWand.worldX, gunWand.worldY, gunWand.worldZ);
+      PVector gunDirection = new PVector(2000*gunWand.vectForwardWorld.x, 
+                                             2000*gunWand.vectForwardWorld.y, 
+                                             2000*gunWand.vectForwardWorld.z);
+      
+      fireRay = PVector.add(gun, gunDirection);
+      
+      //println("FirePos: " + firePos.x + ", " + firePos.y + ", " + firePos.z);    
+      //println("FireRay: " + fireRay.x + ", " + fireRay.y + ", " + fireRay.z);
+      
+      for(int i = 0; i < enemyPlanes.length; i++) {
+        EnemyPlane enemy = enemyPlanes[i];
+        boolean hit = enemy.intersects(gun, fireRay);
+        if(hit) {
+          enemy.destroy();
+          println("HIT!!!");
+        }
       }
     }
   }
@@ -327,9 +325,6 @@ public void keyPressed()
     if (keyCode == DOWN ) plane.pitch(0.05);
     if (key == ',') plane.accelerate();
     if (key == '.') plane.decelerate();
-
-    if (key == 'p')
-      wand[0].pitch = 1.0f;
   }
   
   if (keyCode == 32 ) countdown.start(); // Space
@@ -379,26 +374,7 @@ public void keyPressed()
       }
     }
     */
-    firePos = plane.getLocation();
-    float gunX = gunWand.worldX;
-    float gunY = gunWand.worldY;
-    float gunZ = gunWand.worldZ;
-    PVector gunDirection = new PVector(2000*gunWand.vectForwardWorld.x, 
-                                           2000*gunWand.vectForwardWorld.y, 
-                                           2000*gunWand.vectForwardWorld.z);
-    gunDirection.add(firePos);
-    
-    fireRay = gunDirection;
-    
-    println("FirePos: " + firePos.x + ", " + firePos.y + ", " + firePos.z);    
-    println("FireRay: " + fireRay.x + ", " + fireRay.y + ", " + fireRay.z);
-    
-  }
-  
-  // TODO: Kaasu ja jarru wandin kanssa
-  //if (???) plane.accelerate();
-  //if (???) plane.decelerate();
-  
+  } 
 
   // Simulate head tracking with keyboard. Notice the view distortion.
   /*if (key == 'f') viewManager.incThreadedHeadX(-5);

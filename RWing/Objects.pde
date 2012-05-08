@@ -170,14 +170,16 @@ public class Sky {
 public class Plane extends PhysicalObject {
 
   V3dsScene model;
-  PVector baseDirection, direction, location;
+  PVector baseDirection = new PVector();
+  PVector direction = new PVector();
+  PVector location = new PVector();
   PMatrix3D transform;
   Quaternion rotation;
   PMatrix3D rotationMatrix;
   AudioPlayer sound;
   LowPassFS lpfilter;
   
-  Quaternion pitchQuat = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), 0);
+  Quaternion pitchQuat = Quaternion.createIdentity();
   
   static final float SPEED_BOOST_DURATION = 7000f;
   static final int SPEED_BOOST_MULTIPLIER = 3;
@@ -186,9 +188,9 @@ public class Plane extends PhysicalObject {
   float speed, speedBoost;
   Timer speedBoostTimer = new Timer();
   
-  float stiffness = 1800.0f;
-  float damping = 3000.0f;
-  float mass = 50.0f;
+  float stiffness = 3000.0f;
+  float damping = 1000.0f;
+  float mass = 10.0f;
   
   PVector currentRot = new PVector(0, 0);
   PVector desiredRot = new PVector(0, 0);
@@ -205,19 +207,20 @@ public class Plane extends PhysicalObject {
   }
   
   private void renderAtStartingPosition() {
-    baseDirection = new PVector(0, 0, 1);
-    direction = new PVector(0, 0, 1);
-    location = new PVector(0, 0, 0);
+    baseDirection.set(0, 0, 1);
+    direction.set(0, 0, 1);
+    location.set(0, 0, 0);
+    
     transform = new PMatrix3D();
     rotation = Quaternion.createIdentity();
+    
+    currentRot.set(0, 0, 0);
+    desiredRot.set(0, 0, 0);
+    rotVelocity.set(0, 0, 0);
     
     // Turn the plane 180
     Quaternion yaw = Quaternion.createFromAxisAngle(new PVector(0, 1, 0), PI);
     rotation = rotation.mult(yaw);
-  }
-
-float i(float[] m, int r, int c) {
-    return m[r*4 + c];
   }
   
   public void draw() {
@@ -238,7 +241,6 @@ float i(float[] m, int r, int c) {
     pushMatrix();
     
     applyMatrix(transform);
-    //applyMatrix(rotationMatrix);
     
     // TODO: this is because the model has a different base than processing
     scale(1, -1, -1);
@@ -246,27 +248,26 @@ float i(float[] m, int r, int c) {
     model.draw();
     
     popMatrix();
+  }
+  
+  public void update() {
     
+    direction = rotation.rotateVector(baseDirection);
+   
     // update location
     location = PVector.add(location, PVector.mult(direction, speed + calculateSpeedBoost()));
     
     // update sound frequency based on speed
     lpfilter.setFreq(100 + min(this.getThrustAmount(), 100) * 6);
-        
+    
     // Calculate "easing angle" with spring force
     
     // Apply +- PI to currentRot if it's closer to desiredRot that way, fixes bump at +-PI/2
-    /*if (abs(currentRot.x + PI - desiredRot.x) < abs(currentRot.x - desiredRot.x)) {
+    if (abs(currentRot.x + PI - desiredRot.x) < abs(currentRot.x - desiredRot.x)) {
       currentRot.x += PI;
     } else if (abs(currentRot.x - PI - desiredRot.x) < abs(currentRot.x - desiredRot.x)) {
       currentRot.x -= PI;
-    }*/
-  }
-  
-  public void update() {
-    
-    rotation = rotation.mult(pitchQuat);
-    direction = rotation.rotateVector(baseDirection);
+    }
     
     // Calculate displacement force
     PVector displacement = PVector.sub(currentRot, desiredRot);    
@@ -281,11 +282,10 @@ float i(float[] m, int r, int c) {
     
     PVector applyRot = PVector.mult(rotVelocity, elapsed);
     currentRot.add(applyRot);
-  
-    //Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), applyRot.x);
     
+    Quaternion roll = Quaternion.createFromAxisAngle(new PVector(0, 0, 1), applyRot.x);
     Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), applyRot.y);
-    pitchQuat = pitchQuat.mult(pitch);
+    rotation = rotation.mult(roll.mult(pitch));
   }
   
   public void reset() {
@@ -297,7 +297,7 @@ float i(float[] m, int r, int c) {
   }
   
   public void startEngine() {
-    speed = 0.25f;
+    speed = 0.5f;
     sound.loop();
   }
   
@@ -329,12 +329,6 @@ float i(float[] m, int r, int c) {
     // TODO: tanne constraint...
     desiredRot.y += pitchAngle;
     desiredRot.x = rollAngle;
-  }
-  
-  public void setQuaternion(Quaternion q) {
-    //Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), desiredRot.y);
-    //rotation = q.mult(pitch);
-    rotation = q;
   }
   
   public PVector getLocation() {
@@ -617,10 +611,13 @@ public class Checkpoint extends PhysicalObject {
 
 public class RaceLine {
 
+  // Interval for control points
+  int interval = 1000;
+  
   int ctrlPointCount = 20;
   PVector[] ctrlPoints = new PVector[ctrlPointCount];
   
-  int checkpointCount = 8, current = 0;
+  int checkpointCount = 2, current = 0;
   int last = checkpointCount - 1;
   Checkpoint[] checkpoints = new Checkpoint[checkpointCount];
 
@@ -651,7 +648,7 @@ public class RaceLine {
     for (int i = 2; i < ctrlPointCount; i++) {
       PVector prev = ctrlPoints[i-1];
 
-      float z = prev.z - 600;
+      float z = prev.z - interval;
       float x = random(-600, 600);
       float y = random(-600, 0);
 

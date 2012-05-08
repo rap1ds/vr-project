@@ -5,21 +5,21 @@
              The wiimoteID, skeletonID, and PSMoveID indices start from 		 0 (zero).
              Similarly, the wand instances will get their ID from the
              order in which they appear on this list, starting from 0. 	  -->
-        <wands>
+        <wands>            
             <PSMove   psmoveID="0" selection="buttonTrigger"     />
             <Mouse       	     selection="buttonLeft"        />
             <PSMove   psmoveID="1" selection="buttonTrigger"     />
-            <PSMove   psmoveID="2" selection="buttonTrigger"     />
-            <!-- Uncomment one of the skeleton rows if you want
+		 <PSMove   psmoveID="2" selection="buttonTrigger"     />
+            <!-- Uncomment one of the skeleton rows if you want 	
 								 to use Kinect. -->
             <!--
-            <Skeleton skeletonID="0" bodyPart="rightHand"
+            <Skeleton skeletonID="0" bodyPart="rightHand" 	
 			selection="gestureK"				     />
-            <Skeleton skeletonID="0" bodyPart="leftHand"
+            <Skeleton skeletonID="0" bodyPart="leftHand"  	
 			selection="gestureL" release="gestureM"  	     />
 
 
-            <Wiimote  wiimoteID="0"                              />
+            <Wiimote  wiimoteID="0"                              />  
 		<Wiimote  wiimoteID="1" selection="buttonB"          />
 											-->
         </wands>
@@ -32,11 +32,11 @@
         <coordinateSystem preferedTracker="Kinect"
 				  kinectFloorDetection="false"/>
 
-    <network>
-        <MoveMe address="130.233.46.216" localPort="5566"
+    <network> 
+        <MoveMe address="192.168.0.100" localPort="5566"
  				remotePort="7899"			   />
 
-        <GlovePIE  address="127.0.0.1" localPort="7400"
+        <GlovePIE  address="127.0.0.1" localPort="7400" 
 				remotePort="8000" 		   />
     </network>
     <!-- GlovePIE is used to handle Wiimote connections. -->

@@ -198,16 +198,19 @@ public class Plane extends PhysicalObject {
   public Plane(PApplet applet, String filename) {
     super(0, 0, 0, 0, 0, 0, 0);
     model = new V3dsScene(applet, filename);
+    sound = minim.loadFile("plane.wav", 2048);
+    lpfilter = new LowPassFS(300, sound.sampleRate());
+    sound.addEffect(lpfilter);
+    
+    renderAtStartingPosition();
+  }
+  
+  private void renderAtStartingPosition() {
     baseDirection = new PVector(0, 0, 1);
     direction = new PVector(0, 0, 1);
     location = new PVector(0, 0, 0);
     transform = new PMatrix3D();
     rotation = Quaternion.createIdentity();
-    
-
-    sound = minim.loadFile("plane.wav", 2048);
-    lpfilter = new LowPassFS(300, sound.sampleRate());
-    sound.addEffect(lpfilter);
     
     // Turn the plane 180
     Quaternion yaw = Quaternion.createFromAxisAngle(new PVector(0, 1, 0), PI);
@@ -284,6 +287,14 @@ float i(float[] m, int r, int c) {
     
     Quaternion pitch = Quaternion.createFromAxisAngle(new PVector(1, 0, 0), applyRot.y);
     pitchQuat = pitchQuat.mult(pitch);
+  }
+  
+  public void reset() {
+    sound.pause();
+    speed = 0f;
+    speedBoost = 0f;
+    speedBoostTimer.reset();
+    renderAtStartingPosition();
   }
   
   public void startEngine() {
@@ -627,6 +638,11 @@ public class RaceLine {
   public void setup() {
     generateControlPoints();
     createCheckpoints();
+  }
+  
+  public void reset() {
+    this.current = 0;
+    this.finished = false;
   }
 
   public void generateControlPoints() {

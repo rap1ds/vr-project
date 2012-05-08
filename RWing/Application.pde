@@ -322,6 +322,7 @@ public void keyPressed()
   }
   
   if (keyCode == 32 ) countdown.start(); // Space
+  if (key == 'z') resetGame();
   // Mikä ois hyvä nappi wandille?
   
   if(key == 'f') {
@@ -358,6 +359,13 @@ public void keyPressed()
    if (key == 'r') viewManager.incThreadedHeadY(5);
    if (key == 't') viewManager.incThreadedHeadZ(-5);
    if (key == 'g') viewManager.incThreadedHeadZ(5);*/
+}
+
+public void resetGame() {
+  plane.reset();
+  raceLine.reset();
+  timer.reset();
+  countdown = new Countdown();
 }
 
 public void lightSetup()

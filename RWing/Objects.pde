@@ -621,7 +621,7 @@ public class RaceLine {
   int ctrlPointCount = 20;
   PVector[] ctrlPoints = new PVector[ctrlPointCount];
   
-  int checkpointCount = 1, current = 0;
+  int checkpointCount = 8, current = 0;
   int last = checkpointCount - 1;
   Checkpoint[] checkpoints = new Checkpoint[checkpointCount];
 

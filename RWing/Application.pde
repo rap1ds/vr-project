@@ -251,11 +251,14 @@ public void myInteraction()
   //plane.rotationMatrix = m;
   //plane.setQuaternion(q);
   
-  float factor = 0.1f;
-  plane.pitch((wand[0].pitch + wand[2].pitch) * 0.5f * factor);
-  plane.setQuaternion(q);  
-
+  if(!useKeyboard) {
+    float factor = 0.1f;
+    plane.pitch((wand[0].pitch + wand[2].pitch) * 0.5f * factor);
+    plane.setQuaternion(q);  
+  }
+  
   plane.update();
+  
   
   if(gunWand.buttonX) {
     // FIX

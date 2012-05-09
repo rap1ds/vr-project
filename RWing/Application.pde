@@ -264,7 +264,7 @@ public void myInteraction()
     if (leftWand.buttonTrigger)
       plane.decelerate();
   
-    if(gunWand.buttonTrigger) {
+    if(gunWand != null && gunWand.buttonTrigger) {
       firePos = plane.getLocation();
       
       PVector gun = new PVector(gunWand.worldX, gunWand.worldY, gunWand.worldZ);
@@ -273,9 +273,6 @@ public void myInteraction()
                                              2000*gunWand.vectForwardWorld.z);
       
       fireRay = PVector.add(gun, gunDirection);
-      
-      //println("FirePos: " + firePos.x + ", " + firePos.y + ", " + firePos.z);    
-      //println("FireRay: " + fireRay.x + ", " + fireRay.y + ", " + fireRay.z);
       
       for(int i = 0; i < enemyPlanes.length; i++) {
         EnemyPlane enemy = enemyPlanes[i];
@@ -332,48 +329,7 @@ public void keyPressed()
   // Mikä ois hyvä nappi wandille?
   
   if(key == 'f') {
-    /*
-    EnemyPlane enemy = enemyPlanes[0];
-    firePos = plane.getLocation();
-    enemyPlanePos = enemy.getCenter();
-    
-    fireRay = PVector.sub(enemyPlanePos, firePos);
-    fireRay = PVector.add(enemyPlanePos, fireRay);
-    
-    println("Plane: " + firePos.x + ", " + firePos.y + ", " + firePos.z + "   Enemy: " + enemyPlanePos.x + ", " + enemyPlanePos.y + ", " + enemyPlanePos.z + "   Fire ray: "  + fireRay.x + ", " + fireRay.y + ", " + fireRay.z);
-    
-    // fireRay.mult(10);
-    
-    boolean hit = enemy.intersects(firePos, fireRay);
-    
-    if(hit) {
-      print("HIIIITTTT!!!!");
-    }
-    */   
-    /*
-    PMatrix3D transform = plane.transform;
-    
-    float z = cos(gunWand.yaw) * cos(gunWand.pitch) * -1;
-    float x = sin(gunWand.yaw) * cos(gunWand.pitch);
-    float y = sin(gunWand.pitch) * -1;
-    
-    wandDirection = new PVector(x, y, z);
-    wandDirection.mult(2000);
-    
-    firePos = plane.getLocation();
-    fireRay = PVector.add(firePos, wandDirection);
-
-    println("FirePos: " + firePos.x + ", " + firePos.y + ", " + firePos.z);    
-    println("FireRay: " + fireRay.x + ", " + fireRay.y + ", " + fireRay.z);
-    
-    for(int i = 0; i < enemyCount; i++) {
-      EnemyPlane enemy = enemyPlanes[i];
-      boolean hit = enemy.intersects(firePos, fireRay);
-      if(hit) {
-        println("HIT!");
-      }
-    }
-    */
+    // Debug gun fire
   } 
 
   // Simulate head tracking with keyboard. Notice the view distortion.

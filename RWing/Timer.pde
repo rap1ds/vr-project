@@ -18,6 +18,10 @@ public class Timer {
     }
   }
   
+  public void decreaseTime(int ms) {
+    startTime += ms;
+  }
+  
   /**
    * Notice, this is RESET, not restart
    */

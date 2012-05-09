@@ -6,9 +6,11 @@ public class EnemyPlane extends PhysicalObject {
   float z;
   float hitAreaSize = 15;
 
-  float speed = 0.25; 
+  float speed = 0; 
+  float speedDown = 0;
   
   boolean destroyed = false;
+  float rotation = 0;
 
   public EnemyPlane(PApplet applet, String filename) {
     super(0, 0, 0, 0, 0, 0, 0);
@@ -21,38 +23,40 @@ public class EnemyPlane extends PhysicalObject {
   }
 
   public void startEngine() {
-    speed = 0;
+    speed = 0.25;
   }
 
   public void draw() {
 
-    if(!destroyed) {
-
-    // Hit area
-    /*
-    PVector center = this.getCenter();
-    PVector normal = new PVector(center.x - 100, center.y, center.z);
-    stroke(color(255, 0, 0));
-    pushMatrix();
-    translate(center.x, center.y, center.z);
-    sphere(20); // distance 10
-    popMatrix();
-    */
-
+    if(y > 200) {
+      // No not draw anymore, destroyed.
+      return;
+    }
+    
     pushMatrix();
 
     // TODO: this is because the model has a different base than processing
     translate(x, y, z);
+    rotateX(rotation);
     scale(1, -1, 1);
 
     model.draw();
 
-    popMatrix();
-    }
+    popMatrix();    
   }
   
   public void update() {
     if (!destroyed) {
+      z -= speed;
+    } else {
+      if(rotation < (HALF_PI)) {
+        rotation += 0.01;
+      }
+      
+      speed += 0.01;
+      speedDown += 0.03;
+      
+      y += speedDown;
       z -= speed;
     }
   }
@@ -67,10 +71,14 @@ public class EnemyPlane extends PhysicalObject {
   }
   
   public void destroy() {
-    this.destroyed = true;
+    if(!this.destroyed) {
+      this.destroyed = true;
+      timer.decreaseTime(2500);
+    }
   }
 
   public boolean intersects(PVector l0, PVector l1) {
+    
     PVector p0 = this.getCenter();
     PVector n = getNormal();
     PVector l = new PVector();
